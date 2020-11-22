@@ -70,9 +70,8 @@ class Home extends Component {
             </TouchableOpacity>       
         </View>
         <Modal transparent={true} visible={this.state.showModal} animationType="slide">
-            <View  style={{backgroundColor:'#00000060',height:830}}>
-                <View style={{backgroundColor:'white',borderRadius:10,flex:1}}>
-
+            <View  style={{backgroundColor:'#00000060',justifyContent:'center',alignItems:'center',paddingTop:Constants.statusBarHeight}}>
+                <View style={{backgroundColor:'white',borderRadius:10,height:800,width:400}}>
                     <View style={{flex:1,justifyContent:'center',flexDirection:'row'}}>
                       <TouchableOpacity style={{justifyContent:'center'}} onPress={()=>{this.setState({showModal:false}),this.setState({picture:null})}}>
                         <View >
@@ -99,13 +98,13 @@ class Home extends Component {
                       </View>
                       <View style={{flex:10}}>
                         <View style={{flex:1,margin:10,}}>
-                          <TextInput placeholder="บอกความรู้สึกของคุณ..." style={{marginLeft:10,fontSize:18,width:'96%',fontFamily:'kanitRegular'}}></TextInput>
+                          <TextInput multiline={true} placeholder="บอกความรู้สึกของคุณ..." style={{marginLeft:10,fontSize:18,width:'96%',fontFamily:'kanitRegular'}}></TextInput>
                           {this.state.picture!=null&&<Image style={{flex:1,marginTop:5,resizeMode:'cover'}} source={{uri:this.state.picture}}></Image>}
                         </View>
                         <View style={{flex:1}}>
                            <View style={{height:1,backgroundColor:'#00000060'}}></View>
                            <TouchableOpacity onPress={this.pickImage}>
-                              <View style={{backgroundColor:'white',height:50,width:'100%',marginLeft:10,borderRadius:10,flexDirection:'row',alignItems:'center'}}>
+                              <View style={{backgroundColor:'white',height:50,width:350,flexDirection:'row',alignItems:'center'}}>
                                 <SimpleLineIcons style={{marginLeft:10}} name="picture" size={24} color="black" />
                                 <Text style={{marginLeft:10,fontFamily:'kanitRegular'}}>รูปภาพ/วีดีโอ</Text>
                               </View>
@@ -166,7 +165,7 @@ const styles = StyleSheet.create({
       borderRadius:5,
       flexDirection:'row',
       justifyContent:'space-evenly',
-      alignItems:'center'
+      alignItems:'center',
     },
   });
 
