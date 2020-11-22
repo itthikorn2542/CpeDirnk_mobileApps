@@ -42,7 +42,7 @@ class Song extends Component {
     const { navigation } = this.props;
     return (
       <View style={{flex:1}}>
-        <View style={{backgroundColor:'black',height:100,width:'90%',borderWidth:1,borderRadius:10,marginLeft:20,marginRight:20,flexDirection:'row',marginBottom:15}}>
+        <View style={{backgroundColor:'black',height:100,borderWidth:1,borderRadius:10,marginLeft:20,marginRight:20,flexDirection:'row',marginBottom:15}}>
             <View style={{backgroundColor:'#E2E2E2',height:80,width:80,borderRadius:10,margin:10,justifyContent:'center',alignItems:'center'}}>
                 <Image source={{uri:'https://image.flaticon.com/icons/png/512/49/49831.png'}} style={{height:70,width:70}}></Image>
             </View>

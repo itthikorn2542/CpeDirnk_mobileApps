@@ -160,7 +160,6 @@ const styles = StyleSheet.create({
       elevation: 2,
       backgroundColor:'white',
       height:90,
-      width:'96%',
       margin:8,
       borderRadius:5,
       flexDirection:'row',
