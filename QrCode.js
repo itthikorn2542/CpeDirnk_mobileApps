@@ -33,7 +33,9 @@ class QrCode extends React.Component {
     const {hasCameraPermission,scanned} = this.state;
 
     // if (hasCameraPermission === null) {
-    //   return (<Text> Requesting for camera permission </Text>);
+    //   return (
+    //     this.setState({hasCameraPermission:null})
+    //   );
     // }
     if (hasCameraPermission === false) {
       return (<Text> No access to camera </Text>);

@@ -27,6 +27,7 @@ import FriendList from './FriendList'
 import { AntDesign } from '@expo/vector-icons';
 import { EvilIcons } from '@expo/vector-icons';
 import * as Font from 'expo-font';
+
 const SpalshScreen =()=> {
   const navigation = useNavigation();
   return (
@@ -40,7 +41,12 @@ const LoginScreen =()=> {
     <Login navigation={navigation} />
   );
 }
-
+const PostScreen =()=> {
+  const navigation = useNavigation();
+  return (
+    <Post navigation={navigation} />
+  );
+}
 const RegisterScreen =()=> {
   const navigation = useNavigation();
   return (
@@ -157,6 +163,7 @@ const MyStack=()=>{
           <Stack.Screen name="PageChat" 
             component={PageChatScreen} 
             options={({ route }) => ({ title: route.params.username ,headerShown: true,})}/>
+
           
           <Stack.Screen 
           options={({ navigation }) => (

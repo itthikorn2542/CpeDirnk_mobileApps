@@ -38,7 +38,7 @@ class Food extends Component {
     return(
       <View style={{marginLeft:20}}>
         <TouchableOpacity onPress={()=>{this.setState({selectedID:item.id})}} style={{backgroundColor:backgroundColor,borderRadius:5}}>
-        <View style={{height:27,width:'100%'}}>
+        <View style={styles.menuStyle}>
               <Text style={{margin:5,fontSize:11,color:textcolor,fontFamily:'kanitRegular'}}>{item.name}</Text>
         </View>
         </TouchableOpacity>
@@ -70,9 +70,10 @@ class Food extends Component {
             
           </View>
 
-          {item.id==this.state.id&&<Modal transparent={true} visible={this.state.showModal} animationType="slide">
-            <View  style={{backgroundColor:'#00000060',flex:1}}>
-                <View style={{backgroundColor:'white',marginTop:100,marginBottom:200,marginLeft:20,marginRight:20,borderRadius:10,flex:1}}>
+          {item.id==this.state.id&&
+          <Modal transparent={true} visible={this.state.showModal} animationType="slide">
+            <View  style={{backgroundColor:'#00000060',flex:1,justifyContent:'center',alignItems:'center'}}>
+                <View style={styles.viewModal}>
                     <View style={{height:'10%',width:'100%',borderRadius:10,justifyContent:'center',alignItems:'center',flex:2}}>
                         <Text style={{fontSize:20,fontFamily:'kanitSemiBold'}}>การสั่งซื้อ</Text>
                     </View>
@@ -83,27 +84,22 @@ class Food extends Component {
                       </View>
                         
                         <Text style={{fontSize:20,marginTop:15,fontFamily:'kanitSemiBold'}}>{item.name}</Text>
-                        <Text style={{fontSize:15,marginTop:35,fontFamily:'kanitSemiBold'}}>จำนวน</Text>
+                        <Text style={{fontSize:15,marginTop:35,fontFamily:'kanitSemiBold'}}>โต๊ะ</Text>
+                        <View style={{borderWidth:1,height:52,width:'40%',borderRadius:35,justifyContent:'center',alignItems:'center'}}>
+                          <TextInput  keyboardType='number-pad'  placeholder="กรอกเลขโต๊ะ" style={{fontFamily:'kanitSemiBold',textAlign:'center'}}></TextInput>
+                        </View>
+                        <Text style={{fontSize:15,marginTop:25,fontFamily:'kanitSemiBold'}}>จำนวน</Text>
                         <View style={{flexDirection:'row',marginTop:2}}>
                           <TouchableOpacity onPress={this.countMinus}>
-                            <View style={{height:50,width:50,borderRadius:25,backgroundColor:'gray',justifyContent:'center',alignItems:'center',shadowOffset: {
-                                width: 0,
-                                height: 2
-                              },
-                              shadowOpacity: 0.25,
-                              shadowRadius: 3.84,}}>
+                            <View style={styles.minusStyle}>
                           <Text style={{fontFamily:'kanitSemiBold',fontSize:20,color:'white'}}>&#8722;</Text></View>
                           </TouchableOpacity>
                           
                           <View style={{borderWidth:1,height:52,width:'40%',borderRadius:35,justifyContent:'center',alignItems:'center'}}><Text style={{fontFamily:'kanitSemiBold'}}>{this.state.count}</Text></View>
                            <TouchableOpacity onPress={()=>{this.setState({count:this.state.count+1})}}>
-                             <View style={{height:50,width:50,borderRadius:25,backgroundColor:'#00B2FF',justifyContent:'center',alignItems:'center',shadowOffset: {
-                                width: 0,
-                                height: 2
-                              },
-                              shadowOpacity: 0.25,
-                              shadowRadius: 3.84,}}>
-                            <Text style={{fontFamily:'kanitSemiBold',fontSize:20,color:'white'}}>&#43;</Text></View>
+                            <View style={styles.plusStyle}>
+                                <Text style={{fontFamily:'kanitSemiBold',fontSize:20,color:'white'}}>&#43;</Text>
+                            </View>
                            </TouchableOpacity>
                            
                         </View>
@@ -113,12 +109,12 @@ class Food extends Component {
                     <View style={{flex:2,justifyContent:'center',flexDirection:'row'}}>
                     <TouchableOpacity onPress={()=>{this.setState({showModal:false}),this.setState({count:1})}}>
                     <View style={{alignItems:'center',justifyContent:'center',marginRight:80}}>
-                         <Text style={{fontFamily:'kanitSemiBold',fontSize:17,marginTop:25}}>ยกเลิก</Text>
+                         <Text style={{fontFamily:'kanitSemiBold',fontSize:17,marginTop:40}}>ยกเลิก</Text>
                       </View>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={()=>{this.setState({showModal:false}),this.setState({count:1})}}>
                       <View style={{justifyContent:'center',alignItems:'center',marginLeft:80}}>
-                         <Text style={{fontFamily:'kanitSemiBold',color:'#8B63FB',fontSize:17,marginTop:25}}>สั่งซื้อ</Text>
+                         <Text style={{fontFamily:'kanitSemiBold',color:'#8B63FB',fontSize:17,marginTop:40}}>สั่งซื้อ</Text>
                       </View>
                     </TouchableOpacity>
                     </View>
@@ -134,7 +130,7 @@ class Food extends Component {
   render(props) {
     const { navigation } = this.props;
     return (
-      <View >
+      <View style={{flex:1}}>
             <View style={{height:50,width:'100%'}}>
               <FlatList
             horizontal
@@ -145,15 +141,13 @@ class Food extends Component {
             ref={(ref)=>{this.FlatListRef=ref}}
             />
             </View>
-            <View style={{height:'93%'}}>
-                <FlatList
+              <FlatList
                 data={listFood.list}
                 keyExtractor = {item=>item.id}
                 renderItem={this.renderFood}
                 //ItemSeparatorComponent={this.renderSeparator}
                 ref={(ref)=>{this.FlatListRef=ref}}
               />
-            </View>
     
     </View>
     );
@@ -169,11 +163,67 @@ const styles = StyleSheet.create({
   foodBar:{backgroundColor:'white',
   height:120,
   width:'94%',
-  borderRadius:15,
-  borderWidth:1,
+  borderRadius:10,
+  //borderWidth:1,
   flexDirection:'row',
   alignItems:'center',
   marginLeft:10,
+  shadowColor: "#000",
+  shadowOffset: {
+    width: 0,
+    height: 3,
+  },
+  shadowOpacity: 0.27,
+  shadowRadius: 4.65,
+
+  elevation: 6,
+  },
+  menuStyle:{
+    height:27,
+    width:'100%',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.22,
+    shadowRadius: 2.22,
+
+    elevation: 3,
+  },
+  viewModal:{
+    backgroundColor:'white',
+    height:700,
+    width:350,
+    borderRadius:10,
+  },
+  minusStyle:{
+    height:50,
+    width:50,
+    borderRadius:25,
+    backgroundColor:'gray',
+    justifyContent:'center',
+    alignItems:'center',
+    shadowOffset: {
+    width: 0,
+    height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+  },
+  plusStyle:{
+    height:50,
+    width:50,
+    borderRadius:25,
+    backgroundColor:'#00B2FF',
+    justifyContent:'center',
+    alignItems:'center',
+    shadowOffset: {
+    width: 0,
+    height: 2
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   }
   });
 
