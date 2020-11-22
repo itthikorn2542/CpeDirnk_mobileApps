@@ -20,17 +20,16 @@ class Firestore {
       console.log('firebase app already running...')
     }
   }
-  // addUser=(User,success,reject)=>{
-  //   User.createdDate=firebase.firestore.FieldValue.serverTimestamp();
-  //   firebase.firestore().collection('User').add(User)
-  //   .then(function (docRef) {
-  //     success(docRef);
-  //     })
-  //   .catch(function (error) {
-  //     reject(error);
-  //   });
-  // }
-
+  getAccountWithID(id, getSuccess, getUnsuccess) {
+    let docRef =  firebase.firestore().collection('User').doc(id);
+    docRef.get()
+      .then(function (doc) {
+        getSuccess(doc);
+      })
+      .catch(function (error) {
+        getUnsuccess(error);
+      });
+  }
   signIn = (email, password, success, reject) => {
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then((user) => {

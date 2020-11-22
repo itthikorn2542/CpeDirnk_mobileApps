@@ -3,6 +3,7 @@ import {
   View,Text,StyleSheet,Image,ActivityIndicator
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
+import { acc } from 'react-native-reanimated';
 import firestore from './firebase/Firestore'
 class Splash extends Component {
   constructor(props){
@@ -24,28 +25,39 @@ class Splash extends Component {
         console.log(error)
     }
 
-  listeningCurrentUserSuccess=(user)=>{
-    console.log("splash")
+    getAccountSuccess=(doc)=>{
+        console.log("test")
+        console.log(doc.id)
+        let account=doc.data()
+        account.id=doc.id
+        console.log(account)
+        this.props.navigation.reset({index:0,routes:[{name:'Bottomtab'}]}) 
+      }
 
-    if(user!==null){
-        console.log(user.uid)
-        console.log(user.displayName)
-        if(user.displayName!==null){
-            this.props.navigation.reset({index:0,routes:[{name:'Bottomtab'}]}) 
+    listeningCurrentUserSuccess=async(user)=>{
+        console.log("splash")
+        if(user!==null){
+            console.log(user.uid)
+            console.log(user.displayName)
+            if(user.displayName!==null){
+                console.log(user.uid)
+                await firestore.getAccountWithID(user.uid,this.getAccountSuccess,this.unsuccess)
+                
+            //this.props.navigation.reset({index:0,routes:[{name:'Bottomtab'}]}) 
+            }
+            else if(user.displayName===null){
+                console.log("nulllllllllllll")
+                await firestore.signOut(this.onSignOutSuccess,this.onReject);
+                //this.props.navigation.reset({index:0,routes:[{name:'Login'}]}) 
+            }
+            
         }
-        else if(user.displayName===null){
-            console.log("nulllllllllllll")
-            firestore.signOut(this.onSignOutSuccess,this.onReject);
-            //this.props.navigation.reset({index:0,routes:[{name:'Login'}]}) 
+        else{
+            setTimeout(() => {
+                // this.props.navigation.navigate('Login');
+                this.props.navigation.reset({index:0,routes:[{name:'Login'}]}) 
+            }, 2500)
         }
-        
-    }
-    else{
-        setTimeout(() => {
-            // this.props.navigation.navigate('Login');
-            this.props.navigation.reset({index:0,routes:[{name:'Login'}]}) 
-        }, 2500)
-    }
   }
    componentDidMount() {
     this.authFirebaseListener=firestore.listeningCurrentUser(this.listeningCurrentUserSuccess);
