@@ -162,12 +162,12 @@ const styles = StyleSheet.create({
   },
   foodBar:{backgroundColor:'white',
   height:120,
-  width:'94%',
   borderRadius:10,
   //borderWidth:1,
   flexDirection:'row',
   alignItems:'center',
   marginLeft:10,
+  marginRight:10,
   shadowColor: "#000",
   shadowOffset: {
     width: 0,
