@@ -56,7 +56,7 @@ class Register extends Component {
   onRegisterAut=()=>{
     console.log("onRegisterAut")
     if(this.state.check_textInputChangeName && this.state.check_textInputChange && !this.state.chackPass && !this.state.chackConfrimPass){
-        firestore.createUser(this.state.email,this.state.password,this.reject);
+        firestore.createUser(this.state.email,this.state.password,this.state.name,this.reject);
     }
     else{
         Alert.alert(
