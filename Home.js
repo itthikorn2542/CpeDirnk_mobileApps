@@ -70,7 +70,7 @@ class Home extends Component {
             </TouchableOpacity>       
         </View>
         <Modal transparent={true} visible={this.state.showModal} animationType="slide">
-            <View  style={{backgroundColor:'#00000060',justifyContent:'center',alignItems:'center',paddingTop:Constants.statusBarHeight}}>
+            <View  style={{backgroundColor:'#00000060',justifyContent:'center',alignItems:'center',paddingTop:Constants.statusBarHeight,flex:1}}>
                 <View style={{backgroundColor:'white',borderRadius:10,height:800,width:400}}>
                     <View style={{flex:1,justifyContent:'center',flexDirection:'row'}}>
                       <TouchableOpacity style={{justifyContent:'center'}} onPress={()=>{this.setState({showModal:false}),this.setState({picture:null})}}>
