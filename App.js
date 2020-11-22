@@ -170,7 +170,7 @@ const MyStack=()=>{
             { 
                 title: "CPE ขี้เมา",
                 headerRight: () => (
-                  <View style={{flexDirection:'row',flex:1,justifyContent:'flex-end',alignItems:'flex-start',marginTop:8}}>
+                  <View style={{flexDirection:'row',flex:1,alignItems:'center',}}>
                   <TouchableOpacity onPress={() => navigation.navigate('FriendList')}>
                       <View style={{backgroundColor:'#565656',width:40,height:40,borderRadius:6,justifyContent:'center',alignItems:'center',marginRight:15}}>
                         <FontAwesome5 style={{margin:5}} name="user-friends" size={20} color="white" />

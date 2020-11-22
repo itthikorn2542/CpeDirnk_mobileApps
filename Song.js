@@ -77,7 +77,7 @@ class Song extends Component {
                     visible={this.state.showModal} 
                     animationType="slide"
               >
-            <View  style={{backgroundColor:'#00000080',justifyContent:'center',alignItems:'center',marginTop:10,flex:1}}>
+            <View  style={{backgroundColor:'#00000090',justifyContent:'center',alignItems:'center',flex:1,paddingTop:Constants.statusBarHeight}}>
                 <View style={styles.createModal}>
                     <View style={{height:100,width:'100%',borderRadius:10,justifyContent:'center',alignItems:'center',flex:2,}}>
                     <View style={{marginTop:100,backgroundColor:'#E2E2E2',height:'90%',width:'20%',borderRadius:10,justifyContent:'center',alignItems:'center'}}>
