@@ -10,6 +10,7 @@ import { TextInput } from 'react-native-gesture-handler';
 import { Feather } from '@expo/vector-icons';
 import firestore from './firebase/Firestore'
 
+
 import { connect } from 'react-redux';
 import { saveProfile } from './actions/profile';
 class Profile extends Component {
