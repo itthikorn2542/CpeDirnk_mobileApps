@@ -9,11 +9,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { TextInput } from 'react-native-gesture-handler';
 import { Feather } from '@expo/vector-icons';
 import firestore from './firebase/Firestore'
+
+
+import { connect } from 'react-redux';
+import { saveProfile } from './actions/profile';
 class Profile extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      modalVisible: false
+      modalVisible: false,
+      avatar:this.props.profile.avatar,
+      name:this.props.profile.name,
+      caption:this.props.profile.caption,
+      fb:this.props.profile.fb,
+      ig:this.props.profile.ig,
+      line:this.props.profile.line,
     };
   }
   onSignOutSuccess=()=>{
@@ -22,10 +32,41 @@ class Profile extends Component {
   unsuccess=(error)=>{
     console.log(error)
   }
+  updateAccountSuccess=()=>{
+    console.log("update account success")
+    let user={
+      id:this.props.profile.id,
+      avatar:this.state.avatar,
+      name:this.state.name,
+      caption:this.state.caption,
+      fb:this.state.fb,
+      ig:this.state.ig,
+      line:this.state.line,
+    }
+    this.props.save(user);
+  }
+  updateAccount=async()=>{
+    let user={
+      avatar:this.state.avatar,
+      name:this.state.name,
+      caption:this.state.caption,
+      fb:this.state.fb,
+      ig:this.state.ig,
+      line:this.state.line,
+    }
+    await firestore.updateAccountByID(user,this.props.profile.id,this.updateAccountSuccess,this.unsuccess)
+    this.setState({ modalVisible: false });
+  }
   onLogout=()=>{
     firestore.signOut(this.onSignOutSuccess,this.onReject);
   }
   setModalVisible = (visible) => {
+    this.setState({avatar:this.props.profile.avatar})
+    this.setState({name:this.props.profile.name})
+    this.setState({caption:this.props.profile.caption})
+    this.setState({fb:this.props.profile.fb})
+    this.setState({ig:this.props.profile.ig})
+    this.setState({line:this.props.profile.line})
     this.setState({ modalVisible: visible });
   }
   render(props) {
@@ -46,7 +87,7 @@ class Profile extends Component {
             <View style={styles.modalView}>
               <TouchableOpacity>
                 <View style={styles.profile}>
-                  <Image style={styles.image} source={{ uri: 'https://scontent.fbkk11-1.fna.fbcdn.net/v/t1.0-9/106120566_3049250375195115_1160308528193104189_o.jpg?_nc_cat=110&ccb=2&_nc_sid=09cbfe&_nc_eui2=AeFfLRFY8nsWPzaRCcMLitqYCLpinoXybFQIumKehfJsVP2YpNPfwK62kJ6zo5ChZO3UhLo3G1QN7X602rBhM-Fk&_nc_ohc=dYI0SFIF-0QAX_kTRXm&_nc_ht=scontent.fbkk11-1.fna&oh=8bc5e46e29c8296473275a62356c2aa2&oe=5FD824A1' }} />
+                  <Image style={styles.image} source={{ uri: this.state.avatar }} />
                 </View>
               </TouchableOpacity>
               <View style={{ height: 2, backgroundColor: 'gray', width: 300, margin: 20 }}></View>
@@ -55,7 +96,7 @@ class Profile extends Component {
                   <Feather name="user" size={24} color="black" />
                 </View>
                 <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value="Itthikorn wisetpong"></TextInput>
+                  <TextInput style={styles.textInput} value={this.state.name} onChangeText={(text)=>this.setState({name:text})}></TextInput>
                 </View>
               </View>
 
@@ -64,7 +105,7 @@ class Profile extends Component {
                   <MaterialIcons name="description" size={28} color="black" />
                 </View>
                 <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value="โต๊ะ 18"></TextInput>
+                  <TextInput style={styles.textInput} value={this.state.caption} onChangeText={(text)=>this.setState({caption:text})}></TextInput>
                 </View>
               </View>
 
@@ -73,7 +114,7 @@ class Profile extends Component {
                   <AntDesign name="facebook-square" size={24} color="black" />
                 </View>
                 <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value="Itthikorn wisetpong"></TextInput>
+                  <TextInput style={styles.textInput} value={this.state.fb} onChangeText={(text)=>this.setState({fb:text})}></TextInput>
                 </View>
               </View>
 
@@ -82,7 +123,7 @@ class Profile extends Component {
                   <AntDesign name="instagram" size={24} color="black" />
                 </View>
                 <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value="gg.gorigoe"></TextInput>
+                  <TextInput style={styles.textInput} value={this.state.ig} onChangeText={(text)=>this.setState({ig:text})}></TextInput>
                 </View>
               </View>
 
@@ -91,7 +132,7 @@ class Profile extends Component {
                   <FontAwesome5 name="line" size={24} color="black" />
                 </View>
                 <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value="zicooley"></TextInput>
+                  <TextInput style={styles.textInput} value={this.state.line} onChangeText={(text)=>this.setState({line:text})}></TextInput>
                 </View>
               </View>
               <View style={{ height: 2, backgroundColor: 'gray', width:300, margin: 20 }}></View>
@@ -109,9 +150,7 @@ class Profile extends Component {
                 
                 <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
                   <TouchableOpacity
-                    onPress={() => {
-                      this.setModalVisible(!modalVisible);
-                    }}
+                    onPress={this.updateAccount}
                   >
                     <Text style={{fontSize:18,fontFamily:'kanitRegular',color:'#6F0CEE'}}>ยืนยัน</Text>
                   </TouchableOpacity>
@@ -125,23 +164,30 @@ class Profile extends Component {
 
         <View style={styles.header}>
           <View style={styles.profile}>
-            <Image style={styles.image} source={{ uri: 'https://scontent.fbkk11-1.fna.fbcdn.net/v/t1.0-9/106120566_3049250375195115_1160308528193104189_o.jpg?_nc_cat=110&ccb=2&_nc_sid=09cbfe&_nc_eui2=AeFfLRFY8nsWPzaRCcMLitqYCLpinoXybFQIumKehfJsVP2YpNPfwK62kJ6zo5ChZO3UhLo3G1QN7X602rBhM-Fk&_nc_ohc=dYI0SFIF-0QAX_kTRXm&_nc_ht=scontent.fbkk11-1.fna&oh=8bc5e46e29c8296473275a62356c2aa2&oe=5FD824A1' }} />
+            <Image style={styles.image} source={{ uri:this.props.profile.avatar }} />
           </View>
         </View>
         <View style={styles.mid}>
-          <Text style={styles.name}>Itthikorn wisetpong</Text>
-          <View style={{ flexDirection: 'row', flex: 1 }}>
-            <View style={{ width: '40%', flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'flex-end', paddingRight: 10 }}>
+          <Text style={styles.name}>{this.props.profile.name}</Text>
+          <View style={{ flexDirection: 'column', flex: 1,justifyContent: 'space-evenly',alignItems:'center' }}>
+            <View style={{flexDirection: 'row', alignItems: 'center' }}>
               <MaterialIcons name="description" size={28} color="black" />
-              <AntDesign name="facebook-square" size={24} color="black" />
-              <AntDesign name="instagram" size={24} color="black" />
-              <FontAwesome5 name="line" size={24} color="black" />
+              <Text style={styles.txtDescription}>  {this.props.profile.caption}</Text>
             </View>
-            <View style={{ width: '60%', flexDirection: 'column', justifyContent: 'space-evenly', alignItems: 'flex-start' }}>
-              <Text style={styles.txtDescription}>โต๊ะ 18</Text>
-              <Text style={styles.txtDescription}>Itthikorn wisetpong</Text>
-              <Text style={styles.txtDescription}>gg.gorigoe</Text>
-              <Text style={styles.txtDescription}>zicooley</Text>
+
+            <View style={{flexDirection: 'row', alignItems: 'center' }}>
+              <AntDesign name="facebook-square" size={24} color="black" />
+              <Text style={styles.txtDescription}>  {this.props.profile.fb}</Text>
+            </View>
+
+            <View style={{flexDirection: 'row', alignItems: 'center' }}>
+            <AntDesign name="instagram" size={24} color="black" />
+              <Text style={styles.txtDescription}>   {this.props.profile.ig}</Text>
+            </View>
+
+            <View style={{flexDirection: 'row', alignItems: 'center' }}>
+            <FontAwesome5 name="line" size={24} color="black" />
+              <Text style={styles.txtDescription}>   {this.props.profile.line}</Text>
             </View>
           </View>
         </View>
@@ -277,5 +323,16 @@ const styles = StyleSheet.create({
 
 });
 
+const mapStateToProps = (state) => {
+  return {
+    profile: state.profileReducer.profile
+  }
+}
 
-export default Profile;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    save: (profile) => dispatch(saveProfile(profile)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Profile);

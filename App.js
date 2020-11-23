@@ -29,6 +29,9 @@ import { EvilIcons } from '@expo/vector-icons';
 import * as Font from 'expo-font';
 import {Provider} from 'react-redux'
 
+import configureStore from './Store'
+import {Provider} from 'react-redux'
+
 const SpalshScreen =()=> {
   const navigation = useNavigation();
   return (
@@ -289,10 +292,11 @@ export default class App extends Component {
     }
     else{
       return (
+        <Provider store={configureStore}>
           <NavigationContainer>
-            <MyStack/>
+            <MyStack />
           </NavigationContainer>
-        
+        </Provider>
       );
     } 
   }
