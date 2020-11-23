@@ -194,16 +194,5 @@ const styles = StyleSheet.create({
   }
 
   });
-  const mapDispatchToProps=(dispatch)=>{
-    return{
-      add:(name,singer,detail)=>dispatch(addCar(name,singer,detail))
-    }
-  }
   
-  const mapStateToProps=(state)=>{
-    return{
-      todos:state.SongReducer.songList
-    }
-  }
-
-export default connect(mapStateToProps,mapDispatchToProps)(Song);
+export default Song;
