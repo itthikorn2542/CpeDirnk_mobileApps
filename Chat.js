@@ -4,7 +4,9 @@ import {
   View,Text,StyleSheet,Image,FlatList,TouchableOpacity,TextInput
 } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
-
+import { connect } from 'react-redux';
+import { saveProfile } from './actions/profile';
+import firestore from "./firebase/Firestore"
 class Chat extends Component {
   constructor(props){
     super(props);
@@ -38,6 +40,11 @@ class Chat extends Component {
           }
         }],
     };
+  }
+  componentDidMount(){
+    console.log("get all friend")
+    console.log(this.props.profile.id)
+    //firestore.getFriend(this.props.profile.id,this.getFriendSuccess,this.unsucess);
   }
   Header=()=>{
     return(
@@ -150,6 +157,16 @@ const styles = StyleSheet.create({
     backgroundColor:'#E5E5E5'
   },
   });
-
-
-export default Chat;
+  const mapStateToProps = (state) => {
+    return {
+      profile: state.profileReducer.profile
+    }
+  }
+  
+  const mapDispatchToProps = (dispatch) => {
+    return {
+      save: (profile) => dispatch(saveProfile(profile)),
+    };
+  };
+  
+export default connect(mapStateToProps, mapDispatchToProps)(Chat);
