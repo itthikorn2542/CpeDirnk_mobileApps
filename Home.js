@@ -18,7 +18,8 @@ class Home extends Component {
     super(props);
      this.state = {
       showModal:false,
-      picture:null
+      picture:null,
+      admin:false
     };
   }
 
@@ -60,15 +61,15 @@ class Home extends Component {
     return (
       <View style={{flex:1}}>
         {/* <Text>kjcflkbcgk</Text> */}
-        <View style={styles.postStatus}>
+        {this.state.admin&&<View style={styles.postStatus}>
             <Image style={{height:50,width:50,borderRadius:50}} 
                    source={{uri:'https://scontent.fbkk23-1.fna.fbcdn.net/v/t1.0-9/106120566_3049250375195115_1160308528193104189_o.jpg?_nc_cat=110&ccb=2&_nc_sid=09cbfe&_nc_eui2=AeFfLRFY8nsWPzaRCcMLitqYCLpinoXybFQIumKehfJsVP2YpNPfwK62kJ6zo5ChZO3UhLo3G1QN7X602rBhM-Fk&_nc_ohc=Rvmxq3WtlJgAX_ojFDr&_nc_ht=scontent.fbkk23-1.fna&oh=323ca4fb7b67911d8d2e4912768faced&oe=5FE00DA1'}}></Image>
             <TouchableOpacity style={{width:'80%'}} onPress={()=>{this.setState({showModal:true})}}>
               <View style={{backgroundColor:'#E1E1E1',height:40,borderRadius:40,justifyContent:'center'}}>
                 <Text style={{marginLeft:10,fontFamily:'kanitRegular'}}>บอกความรู้สึกของคุณ</Text>
               </View>
-            </TouchableOpacity>       
-        </View>
+    </TouchableOpacity>  
+        </View>}
         <Modal transparent={true} visible={this.state.showModal} animationType="slide">
             <View  style={{backgroundColor:'#00000060',justifyContent:'center',alignItems:'center',paddingTop:Constants.statusBarHeight,flex:1}}>
                 <View style={{backgroundColor:'white',borderRadius:10,height:800,width:400}}>

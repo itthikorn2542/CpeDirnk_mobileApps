@@ -27,7 +27,8 @@ import FriendList from './FriendList'
 import { AntDesign } from '@expo/vector-icons';
 import { EvilIcons } from '@expo/vector-icons';
 import * as Font from 'expo-font';
-
+import {Provider} from 'react-redux'
+import configureStore from './Store'
 const SpalshScreen =()=> {
   const navigation = useNavigation();
   return (
@@ -288,9 +289,12 @@ export default class App extends Component {
     }
     else{
       return (
-        <NavigationContainer>
-          <MyStack/>
-        </NavigationContainer>
+        <Provider store={configureStore}>
+          <NavigationContainer>
+            <MyStack/>
+          </NavigationContainer>
+        </Provider>
+        
       );
     } 
   }

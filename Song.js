@@ -6,12 +6,19 @@ import Constants from 'expo-constants';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import * as song from './song.json'
+import {connect} from 'react-redux';
+import {addSong} from './Actions/ActionSong'
 
+import firestore from './firebase/Firestore'
 class Song extends Component {
   constructor(props){
     super(props);
      this.state = {
-        showModal:false
+        showModal:false,
+        name:null,
+        singer:null,
+        detail:null
+
     };
   }
   renderItem=({item})=>{
@@ -34,10 +41,31 @@ class Song extends Component {
       </View>
     );
   }
+addSuccess=(docRef)=>{
+  let songs=[];
+    let song={
+        id:docRef.id,
+        name:this.state.name,
+        singer:this.state.singer,
+        detail:this.state.detail,
+    }
+    songs=songs.concat(song)
+    this.props.add(songs)
+    console.log(docRef);
 
-  AddSong =()=>{
-    
-  }
+}
+addUnSuccess=(error)=>{
+  console.log(error);
+}
+AddSong = async()=>{
+    let song = {
+      name:this.state.name,
+      singer:this.state.singer,
+      detail:this.state.detail,
+    }
+    await firebase.addSong(song,this.addSuccess,this.addUnSuccess);
+    console.log('add success')
+}
   render(props) {
     const { navigation } = this.props;
     return (
@@ -58,7 +86,7 @@ class Song extends Component {
         </View>
 
         <FlatList
-            data={song.test}
+            data={this.props.todos}
             keyExtractor = {item=>item.id}
             renderItem={this.renderItem}
             ref={(ref)=>{this.FlatListRef=ref}}
@@ -91,13 +119,13 @@ class Song extends Component {
                     <View style={{height:1,backgroundColor:'#65656590',marginTop:60,marginLeft:15,marginRight:15}}></View> 
                     <View style={{flex:3,justifyContent:'space-around',padding:10}}>
                         <View style={{height:'30%',borderRadius:35,borderWidth:1,justifyContent:'center',alignItems:'center'}} >
-                            <TextInput placeholder='ป้อนชื่อเพลง' style={{width:'80%',fontFamily:'kanitSemiBold'}}></TextInput>
+                            <TextInput placeholder='ป้อนชื่อเพลง' style={{width:'80%',fontFamily:'kanitSemiBold'}} onChangeText={(txt)=>{this.setState({name:txt})}}></TextInput>
                         </View>
                         <View style={{height:'30%',borderRadius:35,borderWidth:1,justifyContent:'center',alignItems:'center'}} >
-                          <TextInput placeholder='ศิลปิน' style={{width:'80%',fontFamily:'kanitSemiBold'}}></TextInput>
+                          <TextInput placeholder='ศิลปิน' style={{width:'80%',fontFamily:'kanitSemiBold'}} onChangeText={(txt)=>{this.setState({singer:txt})}}></TextInput>
                         </View>
                         <View style={{height:'30%',borderRadius:35,borderWidth:1,justifyContent:'center',alignItems:'center'}} >
-                            <TextInput placeholder='รายละเอียดเพิ่มเติม' style={{width:'80%',fontFamily:'kanitSemiBold'}}></TextInput>
+                            <TextInput placeholder='รายละเอียดเพิ่มเติม' style={{width:'80%',fontFamily:'kanitSemiBold'}} onChangeText={(txt)=>{this.setState({detail:txt})}}></TextInput>
                         </View>
                     </View>
 
@@ -109,7 +137,7 @@ class Song extends Component {
                          <Text style={{fontSize:17,marginTop:16,fontFamily:'kanitSemiBold'}}>ยกเลิก</Text>
                       </View>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>{this.setState({showModal:false})}}>
+                    <TouchableOpacity onPress={()=>{this.setState({showModal:false}),this.AddSong}}>
                       <View style={{justifyContent:'center',alignItems:'center',marginLeft:80,height:'100%'}}>
                          <Text style={{color:'#8B63FB',fontSize:17,marginTop:16,fontFamily:'kanitSemiBold'}}>ส่งคำขอ</Text>
                       </View>
@@ -193,6 +221,16 @@ const styles = StyleSheet.create({
   }
 
   });
+  const mapDispatchToProps=(dispatch)=>{
+    return{
+      add:(name,singer,detail)=>dispatch(addCar(name,singer,detail))
+    }
+  }
+  
+  const mapStateToProps=(state)=>{
+    return{
+      todos:state.SongReducer.songList
+    }
+  }
 
-
-export default Song;
+export default connect(mapStateToProps,mapDispatchToProps)(Song);

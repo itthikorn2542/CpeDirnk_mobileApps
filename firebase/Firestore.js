@@ -98,6 +98,17 @@ class Firestore {
       });
   }
 
+  addSong=(song,success,reject)=>{
+    firebase.firestore().collection('Song').add(song)
+    .then(function(docRef){
+      console.log('ok');
+      success(docRef);
+    })
+    .catch(function(error){
+        reject(error);
+    });
+  }
+
 }
 const firestore = new Firestore();
 export default firestore;
