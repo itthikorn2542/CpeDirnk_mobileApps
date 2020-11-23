@@ -7,8 +7,6 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import * as song from './song.json'
 import {connect} from 'react-redux';
-import {addSong} from './Actions/ActionSong'
-
 import firestore from './firebase/Firestore'
 class Song extends Component {
   constructor(props){
@@ -41,31 +39,6 @@ class Song extends Component {
       </View>
     );
   }
-addSuccess=(docRef)=>{
-  let songs=[];
-    let song={
-        id:docRef.id,
-        name:this.state.name,
-        singer:this.state.singer,
-        detail:this.state.detail,
-    }
-    songs=songs.concat(song)
-    this.props.add(songs)
-    console.log(docRef);
-
-}
-addUnSuccess=(error)=>{
-  console.log(error);
-}
-AddSong = async()=>{
-    let song = {
-      name:this.state.name,
-      singer:this.state.singer,
-      detail:this.state.detail,
-    }
-    await firebase.addSong(song,this.addSuccess,this.addUnSuccess);
-    console.log('add success')
-}
   render(props) {
     const { navigation } = this.props;
     return (
@@ -86,7 +59,7 @@ AddSong = async()=>{
         </View>
 
         <FlatList
-            data={this.props.todos}
+            data={song.test}
             keyExtractor = {item=>item.id}
             renderItem={this.renderItem}
             ref={(ref)=>{this.FlatListRef=ref}}
