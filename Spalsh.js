@@ -3,8 +3,10 @@ import {
   View,Text,StyleSheet,Image,ActivityIndicator
 } from 'react-native';
 import * as Animatable from 'react-native-animatable';
-import { acc } from 'react-native-reanimated';
 import firestore from './firebase/Firestore'
+
+import { connect } from 'react-redux';
+import { saveProfile } from './actions/profile';
 class Splash extends Component {
   constructor(props){
     super(props);
@@ -26,19 +28,17 @@ class Splash extends Component {
     }
 
     getAccountSuccess=(doc)=>{
-        console.log("test")
         console.log(doc.id)
         let account=doc.data()
         account.id=doc.id
-        console.log(account)
+        this.props.save(account);
+        console.log('redux')
+        console.log(this.props.profile)
         this.props.navigation.reset({index:0,routes:[{name:'Bottomtab'}]}) 
       }
 
     listeningCurrentUserSuccess=async(user)=>{
-        console.log("splash")
         if(user!==null){
-            console.log(user.uid)
-            console.log(user.displayName)
             if(user.displayName!==null){
                 console.log(user.uid)
                 await firestore.getAccountWithID(user.uid,this.getAccountSuccess,this.unsuccess)
@@ -46,7 +46,6 @@ class Splash extends Component {
             //this.props.navigation.reset({index:0,routes:[{name:'Bottomtab'}]}) 
             }
             else if(user.displayName===null){
-                console.log("nulllllllllllll")
                 await firestore.signOut(this.onSignOutSuccess,this.onReject);
                 //this.props.navigation.reset({index:0,routes:[{name:'Login'}]}) 
             }
@@ -124,6 +123,16 @@ const styles = StyleSheet.create({
         transform: [{ rotate: "14.73deg" }],
     },
   });
-
-
-export default Splash;
+  const mapStateToProps = (state) => {
+    return {
+      profile: state.profileReducer.profile
+    }
+  }
+  
+  const mapDispatchToProps = (dispatch) => {
+    return {
+      save: (profile) => dispatch(saveProfile(profile)),
+    };
+  };
+  
+export default connect(mapStateToProps, mapDispatchToProps)(Splash);

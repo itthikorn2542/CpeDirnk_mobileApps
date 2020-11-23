@@ -28,6 +28,9 @@ import { AntDesign } from '@expo/vector-icons';
 import { EvilIcons } from '@expo/vector-icons';
 import * as Font from 'expo-font';
 
+import configureStore from './Store'
+import {Provider} from 'react-redux'
+
 const SpalshScreen =()=> {
   const navigation = useNavigation();
   return (
@@ -288,9 +291,11 @@ export default class App extends Component {
     }
     else{
       return (
-        <NavigationContainer>
-          <MyStack/>
-        </NavigationContainer>
+        <Provider store={configureStore}>
+          <NavigationContainer>
+            <MyStack />
+          </NavigationContainer>
+        </Provider>
       );
     } 
   }
