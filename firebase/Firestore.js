@@ -30,6 +30,29 @@ class Firestore {
         getUnsuccess(error);
       });
   }
+  updateAccountByID=(user,id,success,reject)=>{
+    console.log("updateAccountByID")
+    firebase.firestore().collection('User')
+    .doc(id)
+    .update(user)
+    .then(function(){
+      success(null);
+    })
+    .catch(function(error){
+      reject(error)
+    });
+  }
+  getAccountByStatus=(success,reject)=>{
+    firebase.firestore().collection('User')
+    .where('status','==','0')
+    .get()
+    .then(function(querySnapshot){
+        success(querySnapshot);
+    })
+    .catch(function(error){
+      reject(error);
+    })
+  }
   signIn = (email, password, success, reject) => {
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then((user) => {

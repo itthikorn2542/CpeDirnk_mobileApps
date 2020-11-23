@@ -54,13 +54,14 @@ class Chat extends Component {
         style={{
           height: 1,
           backgroundColor: "#dddddd",
+          marginHorizontal:10
         }}
       />
     );
   };
   renderItem=({item})=>{
     return(
-      <View>
+      <View style={{marginHorizontal:10}}>
         <TouchableOpacity style={{backgroundColor:"#E5E5E5"}}  onPress={()=>this.props.navigation.navigate("PageChat",{roomID:item.id,username:item.users.name})} >
             <View style={styles.container}>
                 <View style={styles.lefContainer}>
