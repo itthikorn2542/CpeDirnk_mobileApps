@@ -156,6 +156,17 @@ class Firestore {
         reject(error);
       });
   };
+  addPost=(post,success,reject)=>{
+    console.log('firebase post')
+    post.createdDate = firebase.firestore.FieldValue.serverTimestamp();
+    firebase.firestore().collection('Post').add(post)
+    .then(function(docRef){
+      success(docRef);
+    })
+    .catch(function(error){
+        reject(error);
+    });
+  };
 
 }
 const firestore = new Firestore();

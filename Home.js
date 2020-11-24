@@ -13,7 +13,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as data from './data.json';
-import {addPost} from './actions/actionPost'
+import {savePost,addPost} from './actions/actionPost'
 import {connect} from 'react-redux';
 import firestore from './firebase/Firestore'
 import moment from 'moment';
@@ -23,7 +23,8 @@ class Home extends Component {
      this.state = {
       showModal:false,
       picture:null,
-      admin:false,
+      caption:"",
+
     };
   }
   pickImage= async()=>{
@@ -49,19 +50,45 @@ class Home extends Component {
       post.id  = doc.id
       posts = posts.concat(post)
     })
-    this.props.add(posts)
+    this.props.save(posts)
     console.log(this.props.post)
     console.log(posts)
   }
   addUnSuccess=(error)=>{
     console.log(error);
   }
+
+  addSuccess=(docRef)=>{
+    this.setState({showModal:false});
+    let posts=[];
+      let post={
+          id:docRef.id,
+          caption:this.state.caption,
+          type:"txt"
+      }
+      posts=posts.concat(post)
+      this.props.save(posts);
+      console.log(posts);
+  
+  }
+
+  AddPost = async()=>{
+    this.setState({showModal:false});
+    this.setState({picture:null})
+    console.log('add success')
+      let post = {
+        caption:this.state.caption,
+        type:"txt"
+      }
+      await firestore.addPost(post,this.addSuccess,this.addUnSuccess);
+      
+  }
   renderItem=({item})=>{
 
     return(
       <View style={{padding:8}}>
         <Card>
-            <Card.Title  title="CPEขี้เมา" subtitle={moment(item.date.toDate()).utcOffset('+07:30').format('YYY-DDD-MMM, h:mm:ss a')} 
+            <Card.Title  title="CPEขี้เมา" subtitle={item.createdDate.toDate().toString()} 
             left={()=>(<Avatar.Image size={50} source={{uri:item.url}}/>)}/>
             <Card.Content>
             <Paragraph><Text style={{fontFamily:'kanitRegular',fontSize:18}}>{item.caption}</Text></Paragraph>
@@ -78,7 +105,7 @@ class Home extends Component {
     return (
       <View style={{flex:1}}>
         {/* <Text>kjcflkbcgk</Text> */}
-        {this.state.admin&&<View style={styles.postStatus}>
+        {this.props.type.type=="Admin"&&<View style={styles.postStatus}>
             <Image style={{height:50,width:50,borderRadius:50}} 
                    source={{uri:'https://scontent.fbkk23-1.fna.fbcdn.net/v/t1.0-9/106120566_3049250375195115_1160308528193104189_o.jpg?_nc_cat=110&ccb=2&_nc_sid=09cbfe&_nc_eui2=AeFfLRFY8nsWPzaRCcMLitqYCLpinoXybFQIumKehfJsVP2YpNPfwK62kJ6zo5ChZO3UhLo3G1QN7X602rBhM-Fk&_nc_ohc=Rvmxq3WtlJgAX_ojFDr&_nc_ht=scontent.fbkk23-1.fna&oh=323ca4fb7b67911d8d2e4912768faced&oe=5FE00DA1'}}></Image>
             <TouchableOpacity style={{width:'80%'}} onPress={()=>{this.setState({showModal:true})}}>
@@ -100,7 +127,7 @@ class Home extends Component {
                       <View style={{flex:1,justifyContent:'center'}}>
                         <Text style={{marginLeft:10,fontSize:20,fontFamily: 'kanitSemiBold'}}>การสร้างโพสต์</Text>
                       </View>
-                      <TouchableOpacity onPress={()=>{this.setState({showModal:false}),this.setState({picture:null})}}>
+                      <TouchableOpacity onPress={this.AddPost}>
                          <View style={{flex:1,justifyContent:'center',alignItems:'flex-end'}}>
                             <Text style={{marginRight:10,fontSize:20,fontFamily: 'kanitSemiBold',color:'#6F0CEE'}}>โพสต์</Text>
                         </View>
@@ -116,7 +143,7 @@ class Home extends Component {
                       </View>
                       <View style={{flex:10}}>
                         <View style={{flex:1,margin:10,}}>
-                          <TextInput multiline={true} placeholder="บอกความรู้สึกของคุณ..." style={{marginLeft:10,fontSize:18,width:'96%',fontFamily:'kanitRegular'}}></TextInput>
+                          <TextInput onChangeText={(txt)=>{this.setState({caption:txt})}} multiline={true} placeholder="บอกความรู้สึกของคุณ..." style={{marginLeft:10,fontSize:18,width:'96%',fontFamily:'kanitRegular'}}></TextInput>
                           {this.state.picture!=null&&<Image style={{flex:1,marginTop:5,resizeMode:'cover'}} source={{uri:this.state.picture}}></Image>}
                         </View>
                         <View style={{flex:1}}>
@@ -188,13 +215,15 @@ const styles = StyleSheet.create({
 
   const mapDispatchToProps=(dispatch)=>{
     return{
-      add:(caption,type)=>dispatch(addPost(caption,type))
+      save:(caption,type)=>dispatch(savePost(caption,type)),
+      add:(caption,type)=>dispatch(addPost(caption,type)),
     }
   }
   
   const mapStateToProps=(state)=>{
     return{
-      post:state.postReducer.postList
+      post:state.postReducer.postList,
+      type:state.profileReducer.profile,
     }
   }
 export default connect(mapStateToProps,mapDispatchToProps)(Home);
