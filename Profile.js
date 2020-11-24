@@ -9,7 +9,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TextInput } from 'react-native-gesture-handler';
 import { Feather } from '@expo/vector-icons';
 import firestore from './firebase/Firestore'
-
+import * as ImagePicker from 'expo-image-picker';
 
 import { connect } from 'react-redux';
 import { saveProfile } from './actions/profile';
@@ -69,6 +69,18 @@ class Profile extends Component {
     this.setState({line:this.props.profile.line})
     this.setState({ modalVisible: visible });
   }
+  pickImage= async()=>{
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes:ImagePicker.MediaTypeOptions.All,
+      allowsEditing:true,
+      quality:1
+    });
+
+    if(!result.cancelled){
+      console.log(result);
+      this.setState({avatar:result.uri});
+    }
+  }
   render(props) {
     const { navigation } = this.props;
     const { modalVisible } = this.state;
@@ -85,7 +97,7 @@ class Profile extends Component {
         >
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={this.pickImage}>
                 <View style={styles.profile}>
                   <Image style={styles.image} source={{ uri: this.state.avatar }} />
                 </View>

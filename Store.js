@@ -1,8 +1,10 @@
 import profileReducer from './reducers/profileReducer'
+import songReducer from './reducers/songReducer'
 import { createStore, combineReducers } from 'redux';
 
 const rootReducer = combineReducers({
-  profileReducer:profileReducer
+  profileReducer:profileReducer,
+  songReducer:songReducer
 })
 
 

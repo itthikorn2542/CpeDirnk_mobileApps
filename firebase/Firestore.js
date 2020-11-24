@@ -124,13 +124,24 @@ class Firestore {
   addSong=(song,success,reject)=>{
     firebase.firestore().collection('Song').add(song)
     .then(function(docRef){
-      console.log('ok');
       success(docRef);
     })
     .catch(function(error){
         reject(error);
     });
-  }
+  };
+  getAllSong= (success, reject) => {
+    firebase
+      .firestore()
+      .collection('Song')
+      .get()
+      .then(function (querySnapshot) {
+        success(querySnapshot);
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+  };
 
 }
 const firestore = new Firestore();
