@@ -122,6 +122,7 @@ class Firestore {
   }
 
   addSong=(song,success,reject)=>{
+    song.createdDate = firebase.firestore.FieldValue.serverTimestamp();
     firebase.firestore().collection('Song').add(song)
     .then(function(docRef){
       success(docRef);
@@ -134,6 +135,19 @@ class Firestore {
     firebase
       .firestore()
       .collection('Song')
+      .orderBy("createdDate")
+      .get()
+      .then(function (querySnapshot) {
+        success(querySnapshot);
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+  };
+  getAllPost= (success, reject) => {
+    firebase
+      .firestore()
+      .collection('Post')
       .get()
       .then(function (querySnapshot) {
         success(querySnapshot);

@@ -98,7 +98,7 @@ class Profile extends Component {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <TouchableOpacity onPress={this.pickImage}>
-                <View style={styles.profile}>
+                 <View style={styles.profile}>
                   <Image style={styles.image} source={{ uri: this.state.avatar }} />
                 </View>
               </TouchableOpacity>
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   },
   profile: {
     width: 150,
-    height: 150,
+    height:150,
     backgroundColor: 'gray',
     borderRadius: 100
   },

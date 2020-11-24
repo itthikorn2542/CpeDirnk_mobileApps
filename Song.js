@@ -63,8 +63,8 @@ class Song extends Component {
           detail:this.state.detail,
       }
       songs=songs.concat(song)
-      this.props.add(songs)
-      console.log(docRef);
+      this.props.add(songs);
+      console.log(songs);
   
   }
   addUnSuccess=(error)=>{

@@ -13,36 +13,19 @@ import { Ionicons } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as data from './data.json';
+import {addPost} from './actions/actionPost'
+import {connect} from 'react-redux';
+import firestore from './firebase/Firestore'
+import moment from 'moment';
 class Home extends Component {
   constructor(props){
     super(props);
      this.state = {
       showModal:false,
       picture:null,
-      admin:false
+      admin:false,
     };
   }
-
-
-  renderItem=({item})=>{
-
-    return(
-      <View style={{padding:8}}>
-        <Card>
-            <Card.Title  title={item.name} subtitle="ใส่วันที่" 
-            left={()=>(<Avatar.Image size={50} source={{uri:item.url}}/>)}/>
-            {/* <Card.Content>
-              <Title>{item.name}</Title>
-            </Card.Content> */}
-            <Card.Content>
-            <Paragraph><Text style={{fontFamily:'kanitRegular'}}>{item.description}</Text></Paragraph>
-            </Card.Content>
-            {item.type=="img"&&<Card.Cover source={{uri:item.url}}/>}
-          </Card>
-      </View>
-    );
-  };
-
   pickImage= async()=>{
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes:ImagePicker.MediaTypeOptions.All,
@@ -55,7 +38,41 @@ class Home extends Component {
       this.setState({picture:result.uri});
     }
   }
+  componentDidMount=()=>{
+    firestore.getAllPost(this.success,this.addUnSuccess);
+  }
+  success = (querySnapshot) => {
+    //console.log(querySnapshot)
+    var posts = []
+    querySnapshot.forEach(function(doc){ 
+      let post = doc.data()
+      post.id  = doc.id
+      posts = posts.concat(post)
+    })
+    this.props.add(posts)
+    console.log(this.props.post)
+    console.log(posts)
+  }
+  addUnSuccess=(error)=>{
+    console.log(error);
+  }
+  renderItem=({item})=>{
 
+    return(
+      <View style={{padding:8}}>
+        <Card>
+            <Card.Title  title="CPEขี้เมา" subtitle={moment(item.date.toDate()).utcOffset('+07:30').format('YYY-DDD-MMM, h:mm:ss a')} 
+            left={()=>(<Avatar.Image size={50} source={{uri:item.url}}/>)}/>
+            <Card.Content>
+            <Paragraph><Text style={{fontFamily:'kanitRegular',fontSize:18}}>{item.caption}</Text></Paragraph>
+            </Card.Content>
+            {item.type=="img"&&<Card.Cover source={{uri:item.url}}/>}
+          </Card>
+      </View>
+    );
+  };
+
+  
   render(props) {
     const { navigation } = this.props;
     return (
@@ -120,7 +137,7 @@ class Home extends Component {
             </View>
         </Modal>
       <FlatList
-        data={data.test}
+        data={this.props.post}
         keyExtractor = {item=>item.id}
         renderItem={this.renderItem}
     />
@@ -169,5 +186,15 @@ const styles = StyleSheet.create({
     },
   });
 
-
-export default Home;
+  const mapDispatchToProps=(dispatch)=>{
+    return{
+      add:(caption,type)=>dispatch(addPost(caption,type))
+    }
+  }
+  
+  const mapStateToProps=(state)=>{
+    return{
+      post:state.postReducer.postList
+    }
+  }
+export default connect(mapStateToProps,mapDispatchToProps)(Home);

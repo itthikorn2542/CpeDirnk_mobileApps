@@ -10,9 +10,7 @@ const songReducer=(state=intialState,action)=>{
     case ADD_SONG:
       return{ 
         ...state,
-        songList:state.songList.concat(
-          action.data
-        )
+        songList:action.data
       }
     
       default:
