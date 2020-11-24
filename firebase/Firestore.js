@@ -53,6 +53,66 @@ class Firestore {
       reject(error);
     })
   }
+  getFriend(id,getSuccess,getUnsuccess){
+    firebase.firestore().collection("Group")
+      .where('member', 'array-contains', id)
+      .get()
+      .then(function (querySnapshot) {
+        getSuccess(querySnapshot);
+      })
+      .catch(function (error) {
+        getUnsuccess(error);
+      });
+  }
+  sendMessage(message,success,reject){
+    message.createdDate = firebase.firestore.FieldValue.serverTimestamp();
+    console.log(message);
+      firebase.firestore().collection('Message')
+      .add(message)
+      .then(function(dogRef){
+        success(dogRef)
+      })
+      .catch(function(error){
+        reject(error)
+      });
+  }
+  listeningMessage(room,success,reject){
+    console.log("listeningMessage")
+    firebase.firestore().collection('Message')
+    .where('roomId', '==' ,room)
+    .onSnapshot(function(snapshot){
+      var message=[];
+      snapshot.docChanges().forEach(function(change){
+        if(change.type==="added"){
+          message.push(change.doc.data())
+        }
+      })
+      success(message)
+    },function(error){
+      reject(error);
+    })
+  }
+  // listeningMessage(room,success,reject){
+  //   console.log("listeningMessage")
+  //   firebase.firestore().collection('Message')
+  //   .where('roomId', '==' ,room)
+  //   .onSnapshot(function(snapshot){
+  //     var massage=[];
+  //     snapshot.docChanges().forEach(function(change){
+  //       if(change.type==="added"){
+  //         console.log(change.doc)
+  //         //let mes=change.doc.data()
+  //         //mes.createdDate=change.doc.data().createdDate.toDate()
+  //         //messsage=massage.push(mes)
+  //       }
+  //     })
+  //     //console.log(massage)
+  //     // massage.sort((a,b)=>b.createdDate.getTime()-a.createdDate.getTime())
+  //     success(massage)
+  //   },function(error){
+  //     reject(error);
+  //   })
+  // }
   signIn = (email, password, success, reject) => {
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then((user) => {
