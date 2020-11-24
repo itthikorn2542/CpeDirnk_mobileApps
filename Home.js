@@ -16,6 +16,7 @@ import * as data from './data.json';
 import {savePost,addPost} from './actions/actionPost'
 import {connect} from 'react-redux';
 import firestore from './firebase/Firestore'
+import storage from './firebase/Storage';
 import moment from 'moment';
 class Home extends Component {
   constructor(props){
@@ -67,29 +68,43 @@ class Home extends Component {
           type:"txt"
       }
       posts=posts.concat(post)
-      this.props.save(posts);
-      console.log(posts);
+      this.props.add(posts);
   
   }
 
   AddPost = async()=>{
     this.setState({showModal:false});
     this.setState({picture:null})
+    let keys = Math.random().toString();
     console.log('add success')
       let post = {
         caption:this.state.caption,
-        type:"txt"
+        type:"txt",
+        keys:keys,
       }
       await firestore.addPost(post,this.addSuccess,this.addUnSuccess);
+      await storage.uploadToFirebase2(this.state.picture,keys,this.uploadSuccess,this.uploadError,this.onUpload);
       
   }
+  uploadSuccess=(uri)=>{
+    console.log(uri)
+    console.log("Uploaded...");
+  }
+  onUpload=(progress)=>{
+    console.log(progress);
+  }
+
+  uploadError=(error)=>{
+    console.log(error);
+  }
+
   renderItem=({item})=>{
 
     return(
       <View style={{padding:8}}>
         <Card>
-            <Card.Title  title="CPEขี้เมา" subtitle={item.createdDate.toDate().toString()} 
-            left={()=>(<Avatar.Image size={50} source={{uri:item.url}}/>)}/>
+            <Card.Title style={{fontFamily:'kanitSemiBold'}} title="CPEขี้เมา" subtitle="date"
+            left={()=>(<Avatar.Image size={50} source={{uri:this.props.type.avatar}}/>)}/>
             <Card.Content>
             <Paragraph><Text style={{fontFamily:'kanitRegular',fontSize:18}}>{item.caption}</Text></Paragraph>
             </Card.Content>
