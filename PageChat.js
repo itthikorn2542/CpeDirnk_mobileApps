@@ -34,19 +34,24 @@ class PageChat extends Component {
     var message=[]
     messages.forEach(function(data){
           let mes=data
-          //mes.createdDate=data.createdDate.toDate()
+          // mes.createdDate=new Date(data.createdDate);
+          mes.createdDate=data.createdDate.toDate();
           message.push(mes)
       })
-    //message.sort((a,b)=>a.createdDate.getTime()-b.createdDate.getTime())
+    message.sort((a,b)=>a.createdDate.getTime()-b.createdDate.getTime())
     console.log(message)
     this.setState({messages:this.state.messages.concat(message)})
   }
   onSend= async ()=>{
+    const a = new Date();
     let newMessages={
       sender: this.state.id,
       roomId:this.room,
       content:this.state.text,
+      createdDate:a
     }
+    console.log(newMessages)
+
     if(this.state.text!==null){
       await firestore.sendMessage(newMessages,this.sendSuccess,this.unsuccess);
     }
@@ -75,7 +80,7 @@ class PageChat extends Component {
         <View style={{flexDirection:"row",justifyContent:"flex-end"}}>
           <View style={styles.Sender}>
               <Text style={styles.txtSender} >{item.content}</Text>
-              {/* <Text style={styles.time}>{moment(item.createdDate).fromNow()}</Text> */}
+              <Text style={styles.time}>{moment(item.createdDate).fromNow()}</Text>
           </View>
           
        </View>}
@@ -84,7 +89,7 @@ class PageChat extends Component {
         <View style={{flexDirection:"row",borderRadius:20}}>
           <View style={styles.Receiver}>
               <Text style={styles.txtReceiver}>{item.content}</Text>
-              {/* <Text style={styles.time}>{moment(item.createdDate).fromNow()}</Text> */}
+              <Text style={styles.time}>{moment(item.createdDate).fromNow()}</Text>
           </View>
        </View>}
       </View>
@@ -109,9 +114,10 @@ class PageChat extends Component {
           <TextInput
             placeholder="Message"
             style={styles.textInput}
+            value={this.state.Text}
             onChangeText={txt => { this.setState({ text: txt }) }} />
 
-          <TouchableOpacity onPressIn={this.onSend}
+          <TouchableOpacity
             onPress={this.onSend}>
             <MaterialCommunityIcons name="send-circle" size={50} color="#C4C4C4" />
           </TouchableOpacity>

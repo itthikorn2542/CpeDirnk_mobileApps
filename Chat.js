@@ -13,34 +13,6 @@ class Chat extends Component {
      this.state = {
        roomId:null,
        items:[],
-        user:[{
-          id: '1',
-          users:{
-            id: 'u2',
-            name: 'Watcharawit',
-            imageUri: 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80',
-          },
-          lastMessage: {
-            id: 'm1',
-            content: 'hi!',
-            createdAt: '2020-10-03T14:48:00.000Z',
-            sender:"1"
-          }
-        },
-        {
-          id: '2',
-          users:{
-            id: 'u2',
-            name: 'Watcharawit1',
-            imageUri: 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80',
-          },
-          lastMessage: {
-            id: 'm1',
-            content: 'hiaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!!',
-            createdAt: '2020-10-03T14:48:00.000Z',
-            sender:"2"
-          }
-        }],
     };
   }
   componentDidMount(){
@@ -107,7 +79,7 @@ class Chat extends Component {
                   <Image style={styles.profile} source={{uri:item.avatar}}/>
                     <View style={styles.midContainer}>
                       <Text style={styles.name}>{item.name}</Text>
-                      <Text style={styles.lastMessage} numberOfLines={1}>{item.roomId}</Text>
+                      <Text style={styles.lastMessage} numberOfLines={1}>{this.props.profile.caption}</Text>
                     </View>
                 </View>
                 {/* <Text style={styles.time}>{moment(item.lastMessage.createdAt).format("DD/MM/YYYY")}</Text> */}

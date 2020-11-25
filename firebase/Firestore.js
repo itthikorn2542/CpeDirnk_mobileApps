@@ -65,7 +65,6 @@ class Firestore {
       });
   }
   sendMessage(message,success,reject){
-    message.createdDate = firebase.firestore.FieldValue.serverTimestamp();
     console.log(message);
       firebase.firestore().collection('Message')
       .add(message)
