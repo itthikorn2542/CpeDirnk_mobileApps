@@ -125,7 +125,7 @@ class Login extends Component {
                     />
                     {this.state.check_textInputChange ?
                     <Animatable.View animation="bounceIn">
-                        <Ionicons name="md-checkmark-circle-outline" size={20} color="red" /> 
+                        <Ionicons name="md-checkmark-circle-outline" size={20} color="green" /> 
                     </Animatable.View>
                     : null}
                 </View>

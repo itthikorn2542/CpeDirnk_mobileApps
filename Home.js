@@ -13,35 +13,21 @@ import { Ionicons } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
 import * as data from './data.json';
+import {savePost,addPost} from './actions/actionPost'
+import {connect} from 'react-redux';
+import firestore from './firebase/Firestore'
+import storage from './firebase/Storage';
+import moment from 'moment';
 class Home extends Component {
   constructor(props){
     super(props);
      this.state = {
       showModal:false,
-      picture:null
+      picture:null,
+      caption:"",
+
     };
   }
-
-
-  renderItem=({item})=>{
-
-    return(
-      <View style={{padding:8}}>
-        <Card>
-            <Card.Title  title={item.name} subtitle="ใส่วันที่" 
-            left={()=>(<Avatar.Image size={50} source={{uri:item.url}}/>)}/>
-            {/* <Card.Content>
-              <Title>{item.name}</Title>
-            </Card.Content> */}
-            <Card.Content>
-            <Paragraph><Text style={{fontFamily:'kanitRegular'}}>{item.description}</Text></Paragraph>
-            </Card.Content>
-            {item.type=="img"&&<Card.Cover source={{uri:item.url}}/>}
-          </Card>
-      </View>
-    );
-  };
-
   pickImage= async()=>{
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes:ImagePicker.MediaTypeOptions.All,
@@ -54,21 +40,95 @@ class Home extends Component {
       this.setState({picture:result.uri});
     }
   }
+  componentDidMount=()=>{
+    firestore.getAllPost(this.success,this.addUnSuccess);
+  }
+  success = (querySnapshot) => {
+    //console.log(querySnapshot)
+    var posts = []
+    querySnapshot.forEach(function(doc){ 
+      let post = doc.data()
+      post.id  = doc.id
+      posts = posts.concat(post)
+    })
+    this.props.save(posts)
+    console.log(this.props.post)
+    console.log(posts)
+  }
+  addUnSuccess=(error)=>{
+    console.log(error);
+  }
 
+  addSuccess=(docRef)=>{
+    this.setState({showModal:false});
+    let posts=[];
+      let post={
+          id:docRef.id,
+          caption:this.state.caption,
+          type:"txt"
+      }
+      posts=posts.concat(post)
+      this.props.add(posts);
+  
+  }
+
+  AddPost = async()=>{
+    this.setState({showModal:false});
+    this.setState({picture:null})
+    let keys = Math.random().toString();
+    console.log('add success')
+      let post = {
+        caption:this.state.caption,
+        type:"txt",
+        keys:keys,
+      }
+      await firestore.addPost(post,this.addSuccess,this.addUnSuccess);
+      await storage.uploadToFirebase2(this.state.picture,keys,this.uploadSuccess,this.uploadError,this.onUpload);
+      
+  }
+  uploadSuccess=(uri)=>{
+    console.log(uri)
+    console.log("Uploaded...");
+  }
+  onUpload=(progress)=>{
+    console.log(progress);
+  }
+
+  uploadError=(error)=>{
+    console.log(error);
+  }
+
+  renderItem=({item})=>{
+
+    return(
+      <View style={{padding:8}}>
+        <Card>
+            <Card.Title style={{fontFamily:'kanitSemiBold'}} title="CPEขี้เมา" subtitle="date"
+            left={()=>(<Avatar.Image size={50} source={{uri:this.props.type.avatar}}/>)}/>
+            <Card.Content>
+            <Paragraph><Text style={{fontFamily:'kanitRegular',fontSize:18}}>{item.caption}</Text></Paragraph>
+            </Card.Content>
+            {item.type=="img"&&<Card.Cover source={{uri:item.url}}/>}
+          </Card>
+      </View>
+    );
+  };
+
+  
   render(props) {
     const { navigation } = this.props;
     return (
       <View style={{flex:1}}>
         {/* <Text>kjcflkbcgk</Text> */}
-        <View style={styles.postStatus}>
+        {this.props.type.type=="Admin"&&<View style={styles.postStatus}>
             <Image style={{height:50,width:50,borderRadius:50}} 
                    source={{uri:'https://scontent.fbkk23-1.fna.fbcdn.net/v/t1.0-9/106120566_3049250375195115_1160308528193104189_o.jpg?_nc_cat=110&ccb=2&_nc_sid=09cbfe&_nc_eui2=AeFfLRFY8nsWPzaRCcMLitqYCLpinoXybFQIumKehfJsVP2YpNPfwK62kJ6zo5ChZO3UhLo3G1QN7X602rBhM-Fk&_nc_ohc=Rvmxq3WtlJgAX_ojFDr&_nc_ht=scontent.fbkk23-1.fna&oh=323ca4fb7b67911d8d2e4912768faced&oe=5FE00DA1'}}></Image>
             <TouchableOpacity style={{width:'80%'}} onPress={()=>{this.setState({showModal:true})}}>
-              <View style={{backgroundColor:'#E1E1E1',height:40,width:'100%',borderRadius:40,justifyContent:'center'}}>
+              <View style={{backgroundColor:'#E1E1E1',height:40,borderRadius:40,justifyContent:'center'}}>
                 <Text style={{marginLeft:10,fontFamily:'kanitRegular'}}>บอกความรู้สึกของคุณ</Text>
               </View>
-            </TouchableOpacity>       
-        </View>
+    </TouchableOpacity>  
+        </View>}
         <Modal transparent={true} visible={this.state.showModal} animationType="slide">
             <View  style={{backgroundColor:'#00000060',justifyContent:'center',alignItems:'center',paddingTop:Constants.statusBarHeight,flex:1}}>
                 <View style={{backgroundColor:'white',borderRadius:10,height:800,width:400}}>
@@ -82,7 +142,7 @@ class Home extends Component {
                       <View style={{flex:1,justifyContent:'center'}}>
                         <Text style={{marginLeft:10,fontSize:20,fontFamily: 'kanitSemiBold'}}>การสร้างโพสต์</Text>
                       </View>
-                      <TouchableOpacity onPress={()=>{this.setState({showModal:false}),this.setState({picture:null})}}>
+                      <TouchableOpacity onPress={this.AddPost}>
                          <View style={{flex:1,justifyContent:'center',alignItems:'flex-end'}}>
                             <Text style={{marginRight:10,fontSize:20,fontFamily: 'kanitSemiBold',color:'#6F0CEE'}}>โพสต์</Text>
                         </View>
@@ -98,7 +158,7 @@ class Home extends Component {
                       </View>
                       <View style={{flex:10}}>
                         <View style={{flex:1,margin:10,}}>
-                          <TextInput multiline={true} placeholder="บอกความรู้สึกของคุณ..." style={{marginLeft:10,fontSize:18,width:'96%',fontFamily:'kanitRegular'}}></TextInput>
+                          <TextInput onChangeText={(txt)=>{this.setState({caption:txt})}} multiline={true} placeholder="บอกความรู้สึกของคุณ..." style={{marginLeft:10,fontSize:18,width:'96%',fontFamily:'kanitRegular'}}></TextInput>
                           {this.state.picture!=null&&<Image style={{flex:1,marginTop:5,resizeMode:'cover'}} source={{uri:this.state.picture}}></Image>}
                         </View>
                         <View style={{flex:1}}>
@@ -119,7 +179,7 @@ class Home extends Component {
             </View>
         </Modal>
       <FlatList
-        data={data.test}
+        data={this.props.post}
         keyExtractor = {item=>item.id}
         renderItem={this.renderItem}
     />
@@ -168,5 +228,17 @@ const styles = StyleSheet.create({
     },
   });
 
-
-export default Home;
+  const mapDispatchToProps=(dispatch)=>{
+    return{
+      save:(caption,type)=>dispatch(savePost(caption,type)),
+      add:(caption,type)=>dispatch(addPost(caption,type)),
+    }
+  }
+  
+  const mapStateToProps=(state)=>{
+    return{
+      post:state.postReducer.postList,
+      type:state.profileReducer.profile,
+    }
+  }
+export default connect(mapStateToProps,mapDispatchToProps)(Home);

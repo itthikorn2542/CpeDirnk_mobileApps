@@ -180,6 +180,59 @@ class Firestore {
       });
   }
 
+  addSong=(song,success,reject)=>{
+    song.createdDate = firebase.firestore.FieldValue.serverTimestamp();
+    firebase.firestore().collection('Song').add(song)
+    .then(function(docRef){
+      success(docRef);
+    })
+    .catch(function(error){
+        reject(error);
+    });
+  };
+  getAllSong= (success, reject) => {
+    firebase
+      .firestore()
+      .collection('Song')
+      .orderBy("createdDate")
+      .get()
+      .then(function (querySnapshot) {
+        success(querySnapshot);
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+  };
+  getAllPost= (success, reject) => {
+    firebase
+      .firestore()
+      .collection('Post')
+      .orderBy('createdDate','desc')
+      .get()
+      .then(function (querySnapshot) {
+        success(querySnapshot);
+      })
+      .catch(function (error) {
+        reject(error);
+      });
+  };
+  addPost=(post,success,reject)=>{
+    console.log('firebase post')
+    post.createdDate = firebase.firestore.FieldValue.serverTimestamp();
+    firebase.firestore().collection('Post').add(post)
+    .then(function(docRef){
+      success(docRef);
+    })
+    .catch(function(error){
+        reject(error);
+    });
+  };
+//////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+  
+//////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
 }
 const firestore = new Firestore();
 export default firestore;

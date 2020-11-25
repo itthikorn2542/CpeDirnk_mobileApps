@@ -6,37 +6,79 @@ import Constants from 'expo-constants';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import * as song from './song.json'
+import {connect} from 'react-redux';
+import firestore from './firebase/Firestore'
 
+import {addSong} from './actions/actionSong'
 class Song extends Component {
   constructor(props){
     super(props);
      this.state = {
-        showModal:false
+        showModal:false,
+        name:null,
+        singer:null,
+        detail:null,
+        song:[]
+
     };
   }
   renderItem=({item})=>{
     return(
       <View style={{margin:10}}>
       <View style={styles.songBar}>
-            <View style={{height:80,width:'15%',borderRadius:10,margin:10,justifyContent:'center',alignItems:'center',flexDirection:'row'}}>
-                <Text style={{color:'black',marginLeft:10,fontSize:20,fontFamily:'kanitSemiBold'}}>{item.id}</Text>
-                <View style={{width:1,height:60,backgroundColor:'black',marginLeft:20}}></View>
-            </View>
-            <View style={{backgroundColor:'#E2E2E2',height:80,width:70,borderRadius:10,margin:10,marginLeft:1,justifyContent:'center',alignItems:'center'}}>
+            <View style={{backgroundColor:'#E2E2E2',height:80,width:70,borderRadius:10,margin:10,marginLeft:1,justifyContent:'center',alignItems:'center',marginLeft:10}}>
                 <Image source={{uri:'https://image.flaticon.com/icons/png/512/126/126493.png'}} style={{height:45,width:45}}></Image>
             </View>
             <View style={{marginTop:5,marginBottom:5}}>
-                <Text style={{color:'black',marginLeft:10,fontSize:20,fontFamily:'kanitSemiBold'}}>{item.name}</Text>
-                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{item.singer}</Text>
-                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"ให้โต๊ะ "+item.table}</Text>
+                <Text style={{color:'black',marginLeft:10,fontSize:20,fontFamily:'kanitSemiBold'}}>{"เพลง: "+item.name}</Text>
+                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"ศิลปิน: "+item.singer}</Text>
+                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"เพิ่มเติม: "+item.detail}</Text>
             </View>
         </View>
       </View>
     );
   }
+  componentDidMount=()=>{
+    firestore.getAllSong(this.success,this.addUnSuccess);
+  }
+  success = (querySnapshot) => {
+    //console.log(querySnapshot)
+    this.setState({ song: [] })
 
-  AddSong =()=>{
-    
+    var songs = []
+    querySnapshot.forEach(function(doc){ 
+      let song = doc.data()
+      song.id  = doc.id
+      songs = songs.concat(song)
+    })
+    this.props.add(songs)
+  }
+  addSuccess=(docRef)=>{
+    this.setState({showModal:false});
+    let songs=[];
+      let song={
+          id:docRef.id,
+          name:this.state.name,
+          singer:this.state.singer,
+          detail:this.state.detail,
+      }
+      songs=songs.concat(song)
+      this.props.add(songs);
+      console.log(songs);
+  
+  }
+  addUnSuccess=(error)=>{
+    console.log(error);
+  }
+  AddSong = async()=>{
+    console.log('add success')
+      let song = {
+        name:this.state.name,
+        singer:this.state.singer,
+        detail:this.state.detail,
+      }
+      await firestore.addSong(song,this.addSuccess,this.addUnSuccess);
+      
   }
   render(props) {
     const { navigation } = this.props;
@@ -58,7 +100,7 @@ class Song extends Component {
         </View>
 
         <FlatList
-            data={song.test}
+            data={this.props.todos}
             keyExtractor = {item=>item.id}
             renderItem={this.renderItem}
             ref={(ref)=>{this.FlatListRef=ref}}
@@ -77,7 +119,7 @@ class Song extends Component {
                     visible={this.state.showModal} 
                     animationType="slide"
               >
-            <View  style={{backgroundColor:'#00000080',justifyContent:'center',alignItems:'center',marginTop:10,flex:1}}>
+            <View  style={{backgroundColor:'#00000090',justifyContent:'center',alignItems:'center',flex:1,paddingTop:Constants.statusBarHeight}}>
                 <View style={styles.createModal}>
                     <View style={{height:100,width:'100%',borderRadius:10,justifyContent:'center',alignItems:'center',flex:2,}}>
                     <View style={{marginTop:100,backgroundColor:'#E2E2E2',height:'90%',width:'20%',borderRadius:10,justifyContent:'center',alignItems:'center'}}>
@@ -91,13 +133,13 @@ class Song extends Component {
                     <View style={{height:1,backgroundColor:'#65656590',marginTop:60,marginLeft:15,marginRight:15}}></View> 
                     <View style={{flex:3,justifyContent:'space-around',padding:10}}>
                         <View style={{height:'30%',borderRadius:35,borderWidth:1,justifyContent:'center',alignItems:'center'}} >
-                            <TextInput placeholder='ป้อนชื่อเพลง' style={{width:'80%',fontFamily:'kanitSemiBold'}}></TextInput>
+                            <TextInput placeholder='ป้อนชื่อเพลง' style={{width:'80%',fontFamily:'kanitSemiBold'}} onChangeText={(txt)=>{this.setState({name:txt})}}></TextInput>
                         </View>
                         <View style={{height:'30%',borderRadius:35,borderWidth:1,justifyContent:'center',alignItems:'center'}} >
-                          <TextInput placeholder='ศิลปิน' style={{width:'80%',fontFamily:'kanitSemiBold'}}></TextInput>
+                          <TextInput placeholder='ศิลปิน' style={{width:'80%',fontFamily:'kanitSemiBold'}} onChangeText={(txt)=>{this.setState({singer:txt})}}></TextInput>
                         </View>
                         <View style={{height:'30%',borderRadius:35,borderWidth:1,justifyContent:'center',alignItems:'center'}} >
-                            <TextInput placeholder='รายละเอียดเพิ่มเติม' style={{width:'80%',fontFamily:'kanitSemiBold'}}></TextInput>
+                            <TextInput placeholder='รายละเอียดเพิ่มเติม' style={{width:'80%',fontFamily:'kanitSemiBold'}} onChangeText={(txt)=>{this.setState({detail:txt})}}></TextInput>
                         </View>
                     </View>
 
@@ -109,7 +151,7 @@ class Song extends Component {
                          <Text style={{fontSize:17,marginTop:16,fontFamily:'kanitSemiBold'}}>ยกเลิก</Text>
                       </View>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>{this.setState({showModal:false})}}>
+                    <TouchableOpacity onPress={this.AddSong}>
                       <View style={{justifyContent:'center',alignItems:'center',marginLeft:80,height:'100%'}}>
                          <Text style={{color:'#8B63FB',fontSize:17,marginTop:16,fontFamily:'kanitSemiBold'}}>ส่งคำขอ</Text>
                       </View>
@@ -193,6 +235,16 @@ const styles = StyleSheet.create({
   }
 
   });
-
-
-export default Song;
+  
+  const mapDispatchToProps=(dispatch)=>{
+    return{
+      add:(name,singer,detail)=>dispatch(addSong(name,singer,detail))
+    }
+  }
+  
+  const mapStateToProps=(state)=>{
+    return{
+      todos:state.songReducer.songList
+    }
+  }
+export default connect(mapStateToProps,mapDispatchToProps)(Song);
