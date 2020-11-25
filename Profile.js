@@ -67,7 +67,7 @@ class Profile extends Component {
       console.log('upload........')
       this.setState({loading:true})
       let keys = Math.random().toString();
-      await storage.uploadToFirebase2(this.state.avatar, keys, this.uploadSuccess, this.uploadError, this.onUpload);
+      await storage.uploadProfileToFirebase(this.state.avatar, keys, this.uploadSuccess, this.uploadError, this.onUpload);
     }
     //this.setState({ modalVisible: false });
   }

@@ -55,10 +55,10 @@ class PageChat extends Component {
     if(this.state.text!==null){
       await firestore.sendMessage(newMessages,this.sendSuccess,this.unsuccess);
     }
-    this.setState({text:null})
   }
   sendSuccess=(docRef)=>{
     console.log(docRef.id)
+    //this.setState({text:null})
   }
   unsuccess=(error)=>{
     console.log(error)
@@ -73,9 +73,8 @@ class PageChat extends Component {
     );
   };
   renderItem = ({ item }) => {
-    console.log(item.message)
     return (
-      <View>
+      <View style={{marginRight:10}}>
         {item.sender===this.state.id &&
         <View style={{flexDirection:"row",justifyContent:"flex-end"}}>
           <View style={styles.Sender}>
@@ -114,7 +113,7 @@ class PageChat extends Component {
           <TextInput
             placeholder="Message"
             style={styles.textInput}
-            value={this.state.Text}
+            //value={this.state.Text}
             onChangeText={txt => { this.setState({ text: txt }) }} />
 
           <TouchableOpacity
@@ -158,7 +157,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius:20,
     borderBottomRightRadius:20,
     padding:8,
-    marginLeft:4,
     flexShrink:1,
     backgroundColor: "#C0C0C0",
 
@@ -169,6 +167,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius:20,
     borderBottomLeftRadius:20,
     padding:8,
+    marginLeft:8,
     flexShrink:1,
     backgroundColor: "#ffffff",
   },

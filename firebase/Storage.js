@@ -61,22 +61,27 @@ class Storage {
     })
       
   };
-  ///////////////////////////////////////////////////////////////////////
-  uploadProfileToFirebase=async(uri,name,success,reject)=>{
+  /////////////////////////////////////////////////////////////////////////
+  uploadProfileToFirebase = async (uri, keys, success, reject,uploading) => {
     const response = await fetch(uri);
     const blob = await response.blob();
-    var ref =firebase.storage().ref().child('profile/'+name);
-    ref.put(blob)
-    .then(function(snapshot){
-      snapshot.ref.getDownloadURL()
+
+    var uploadTask = firebase.storage().ref().child('imageProfile/' + keys).put(blob);
+
+    uploadTask.on('state_changed',function(snapshot){
+      var progress = (snapshot.bytesTransferred/snapshot.totalBytes)*100;
+      uploading(progress);
+    },function(error){
+      reject(error);
+    },function(){
+      uploadTask.snapshot.ref.getDownloadURL()
       .then(function(uri){
-        success(uri);
+        success(uri)
       })
     })
-    .catch(function(error){
-      reject(error);
-    });
-  }
+      
+  };
+
 
   ////////////////////////////////////////////////////////////////////////
     

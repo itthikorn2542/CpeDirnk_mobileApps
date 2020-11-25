@@ -11,8 +11,12 @@ class Chat extends Component {
   constructor(props){
     super(props);
      this.state = {
-       roomId:null,
+       roomId:[],
        items:[],
+       data:[],
+       search:null,
+       amount:null,
+       count:0
     };
   }
   componentDidMount(){
@@ -21,16 +25,19 @@ class Chat extends Component {
   getFriendAccountSuccess=(doc)=>{
     console.log("getFriendAccountSuccess")
     let account = doc.data();
-    account.roomId = this.state.roomId;
+    account.roomId = this.state.roomId[this.state.count];
+    console.log('rooooooooooomid'+this.state.roomId[this.state.count])
     this.setState({items:this.state.items.concat(account)});
+    this.setState({data:this.state.data.concat(account)});
     console.log(account)
+    this.setState({count:this.state.count+1})
   }
-  getFriendSuccess=(querySnapshot)=>{
+  getFriendSuccess= async (querySnapshot)=>{
     if(querySnapshot.docs.length>0){
       var myID = this.props.profile.id;
       this.setState({items:[]});
       var friend=[]
-      var roomID=[]
+      var roomIDD=[]
       querySnapshot.forEach(function(doc){
         let friendID = null
         if(doc.data().member[0]==myID){
@@ -38,23 +45,42 @@ class Chat extends Component {
         }else{
           friendID = doc.data().member[0];
         }
-        roomID.push(doc.id)
+        console.log('roomm555'+doc.data().member[0])
+        console.log('roomm555'+doc.data().member[1])
+        console.log('roomm555'+doc.id)
+        roomIDD.push(doc.id)
         friend.push(friendID);
       });
+      this.setState({roomId:[]})
+      this.setState({roomId:roomIDD})
+      console.log('roomm555'+roomIDD)
+      this.setState({amount:friend.length})
       for(let i=0;i<friend.length;i++){
-        this.setState({roomId:roomID[i]})
-        firestore.getAccountWithID(friend[i],this.getFriendAccountSuccess,this.unsucess);
+        await firestore.getAccountWithID(friend[i],this.getFriendAccountSuccess,this.unsucess);
       }
     }
   }
   unsucess=(error)=>{
     console.log(error)
   }
+  searchAction=(text)=>{
+    const newData=this.state.data.filter(item=>{
+        const itemData=`${item.name.toUpperCase()}`;
+        const textData=text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+
+    });
+    this.setState({
+      items:newData,
+        search:text
+    });
+    console.log(this.state.search)
+}
   Header=()=>{
     return(
       <View style={styles.header}>
         <FontAwesome name="search" size={24} color="gray" style={styles.icons}/>
-        <TextInput style={styles.inputHeader} placeholder="Search" ></TextInput>
+        <TextInput style={styles.inputHeader} placeholder="Search" onChangeText={text=>this.searchAction(text)}></TextInput>
       </View>
     )
     
