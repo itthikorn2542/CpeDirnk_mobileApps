@@ -18,11 +18,15 @@ import {connect} from 'react-redux';
 import firestore from './firebase/Firestore'
 import storage from './firebase/Storage';
 import moment from 'moment';
+import { AntDesign } from '@expo/vector-icons';
+
+
 class Home extends Component {
   constructor(props){
     super(props);
      this.state = {
       showModal:false,
+      showModal2:false,
       img:null,
       caption:"",
       linkImage:null,
@@ -68,7 +72,7 @@ class Home extends Component {
 getPostSuccess=(doc)=>{
     let post = doc.data();
     post.id  = doc.id
-    this.props.add(posts)
+    this.props.add(post)
     this.setState({showModal:false});
     this.setState({img:null});
     this.setState({linkImage:null})
@@ -77,7 +81,7 @@ getPostUnsuccess=(error)=>{
   console.log(error)
 }
   addSuccess= async(docRef)=>{
-    firestore.getPostByID(docRef.id,this.getPostSuccess,this.getPostUnsuccess)
+   await firestore.getPostWithID(docRef.id,this.getPostSuccess,this.getPostUnsuccess)
 }
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +138,14 @@ uploadError=(error)=>{
       <View style={{padding:8}}>
         <Card>
             <Card.Title style={{fontFamily:'kanitSemiBold'}} title="CPEขี้เมา" subtitle={moment(item.createdDate.toDate()).fromNow()}
-            left={()=>(<Avatar.Image size={50} source={{uri:this.props.type.avatar}}/>)}/>
+            left={()=>(<Avatar.Image size={50} source={{uri:this.props.type.avatar}}/>)} right={()=>(
+            <View style={{backgroundColor:'white',height:50,width:50,justifyContent:'center',alignItems:'center',marginLeft:30}}>
+              <TouchableOpacity onPress={()=>{this.setState({showModal2:true})}}>
+                <SimpleLineIcons name="options-vertical" size={18} color="black" />
+              </TouchableOpacity>
+            </View>
+           
+            )}/>
             <Card.Content>
             <Paragraph ><Text style={{fontFamily:'kanitRegular',fontSize:18,marginTop:10}}>{item.caption}</Text></Paragraph>
             </Card.Content>
@@ -208,10 +219,46 @@ uploadError=(error)=>{
                 </View>
             </View>
         </Modal>
+
+
+      <Modal transparent={true} visible={this.state.showModal2}>
+            <View  style={{backgroundColor:'#00000060',justifyContent:'flex-end',paddingTop:Constants.statusBarHeight,flex:1}}>
+                <View style={{backgroundColor:'white',height:250,width:'100%'}} animationType="slide">
+                  <TouchableOpacity style={{flex:1,alignItems:'center',justifyContent:'center'}} onPress={()=>{this.setState({showModal2:false})}}>
+                    <View >
+                      <AntDesign name="caretdown" size={24} color="black" />
+                    </View>
+                  </TouchableOpacity>
+                    
+                    <View style={{flex:2,justifyContent:'space-between',alignItems:'center'}}>
+                      <View style={{height:1,width:'100%',backgroundColor:'black'}}></View>
+
+                      <TouchableOpacity>
+                        <View style={{justifyContent:'center',alignItems:'center'}}>
+                            <Text style={{fontSize:20,fontFamily:'kanitRegular'}}>แก้ไขโพสต์</Text>
+                        </View>
+                      </TouchableOpacity>
+              
+                        <View style={{height:1,width:'100%',backgroundColor:'black'}}></View>
+                      <TouchableOpacity>
+                        <View>
+                            <Text style={{fontSize:20,fontFamily:'kanitRegular'}}>ลบโพสต์</Text>
+                        </View>
+                      </TouchableOpacity>
+                        
+                        <View style={{height:1,width:'100%',backgroundColor:'black'}}></View>
+                    </View>
+                    <View style={{flex:1}}/>
+                </View>
+            </View>
+      </Modal>
+
       <FlatList
         data={this.props.post}
         keyExtractor = {item=>item.id}
         renderItem={this.renderItem}
+        ref={(ref) => { this.flatListRef = ref; }}
+        onContentSizeChange={() => this.flatListRef.scrollToEnd()}
     />
     </View>
     );
@@ -256,6 +303,17 @@ const styles = StyleSheet.create({
       justifyContent:'space-evenly',
       alignItems:'center',
     },
+    headerText: {
+      fontSize: 20,
+      margin: 10,
+      fontWeight: "bold"
+    },
+    menuContent: {
+      color: "#000",
+      fontWeight: "bold",
+      padding: 2,
+      fontSize: 20
+    }
   });
 
   const mapDispatchToProps=(dispatch)=>{

@@ -195,7 +195,7 @@ class Firestore {
         reject(error);
       });
   };
-  getAccountWithID(id, getSuccess, getUnsuccess) {
+  getPostWithID(id, getSuccess, getUnsuccess) {
     let docRef =  firebase.firestore().collection('Post').doc(id);
     docRef.get()
       .then(function (doc) {
