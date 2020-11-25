@@ -26,7 +26,9 @@ class Home extends Component {
       img:null,
       caption:"",
       linkImage:null,
-      type:"txt"
+      type:"txt",
+      timeDate:null,
+      id:null
 
     };
   }
@@ -54,38 +56,41 @@ class Home extends Component {
       posts = posts.concat(post)
     })
     this.props.save(posts)
-    console.log(this.props.post)
-    console.log(posts)
+    //console.log(this.props.post)
+    //console.log(posts)
   }
   addUnSuccess=(error)=>{
     console.log(error);
   }
-
-  addSuccess=(docRef)=>{
+///////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////////////////////////////////
+getPostSuccess=(doc)=>{
+    let post = doc.data();
+    post.id  = doc.id
+    this.props.add(posts)
     this.setState({showModal:false});
-    console.log("img====>"+this.state.img)
-    let posts=[];
-      let post={
-          id:docRef.id,
-          caption:this.state.caption,
-          type:this.state.type,
-          linkImage:this.state.img
-      }
-      posts=posts.concat(post)
-      this.props.add(posts);
-      this.setState({img:null});
-      this.setState({linkImage:null})
-  
-  }
+    this.setState({img:null});
+    this.setState({linkImage:null})
+}
+getPostUnsuccess=(error)=>{
+  console.log(error)
+}
+  addSuccess= async(docRef)=>{
+    firestore.getPostByID(docRef.id,this.getPostSuccess,this.getPostUnsuccess)
+}
 /////////////////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 uploadSuccess=async(uri)=>{
   console.log(uri)
   this.setState({type:"img"})
   this.setState({linkImage:uri})
+  const timeDate = new Date();
+  this.setState({createdDate:timeDate})
   let post = {
     caption:this.state.caption,
     type:"img",
+    createdDate:timeDate,
     linkImage:this.state.linkImage,
   }
   await firestore.addPost(post,this.addSuccess,this.addUnSuccess);
@@ -103,16 +108,19 @@ uploadError=(error)=>{
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   AddPost = async()=>{
     this.setState({showModal:false});
+    
     if(this.state.img!=null){
       
       let key = Math.random().toString()
-      console.log('add success')
       await storage.uploadToFirebase(this.state.img,key,this.uploadSuccess,this.uploadError);
     }
     else{
+      const timeDate = new Date();
+      this.setState({createdDate:timeDate})
       let post = {
         caption:this.state.caption,
         type:"txt",
+        createdDate:timeDate,
         linkImage:this.state.linkImage,
       }
       await firestore.addPost(post,this.addSuccess,this.addUnSuccess);
@@ -122,18 +130,10 @@ uploadError=(error)=>{
   
 
   renderItem=({item})=>{
-    console.log("date:--->"+moment(item.createdDate.toDate()).fromNow())
     return(
       <View style={{padding:8}}>
-      {/* <View style={styles.postStatus}>
-            <Image style={{height:50,width:50,borderRadius:50}} 
-                   source={{uri:}}></Image>
-              <View style={{backgroundColor:'#E1E1E1',height:40,borderRadius:40,justifyContent:'center'}}>
-                <Text style={{marginLeft:10,fontFamily:'kanitRegular'}}>บอกความรู้สึกของคุณ</Text>
-              </View>
-        </View> */}
         <Card>
-            <Card.Title style={{fontFamily:'kanitSemiBold'}} title="CPEขี้เมา" subtitle={moment(item.createdDate.todate).fromNow()}
+            <Card.Title style={{fontFamily:'kanitSemiBold'}} title="CPEขี้เมา" subtitle={moment(item.createdDate.toDate()).fromNow()}
             left={()=>(<Avatar.Image size={50} source={{uri:this.props.type.avatar}}/>)}/>
             <Card.Content>
             <Paragraph ><Text style={{fontFamily:'kanitRegular',fontSize:18,marginTop:10}}>{item.caption}</Text></Paragraph>

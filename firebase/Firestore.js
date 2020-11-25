@@ -195,8 +195,17 @@ class Firestore {
         reject(error);
       });
   };
+  getAccountWithID(id, getSuccess, getUnsuccess) {
+    let docRef =  firebase.firestore().collection('Post').doc(id);
+    docRef.get()
+      .then(function (doc) {
+        getSuccess(doc);
+      })
+      .catch(function (error) {
+        getUnsuccess(error);
+      });
+  }
   addPost=(post,success,reject)=>{
-    post.createdDate = firebase.firestore.FieldValue.serverTimestamp();
     firebase.firestore().collection('Post').add(post)
     .then(function(docRef){
       success(docRef);
