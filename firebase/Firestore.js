@@ -1,6 +1,7 @@
 import * as firebase from 'firebase';
 import '@firebase/firestore';
 import "@firebase/auth";
+import 'firebase/storage';
 class Firestore {
   constructor() {
     if (!firebase.apps.length) {
@@ -91,27 +92,6 @@ class Firestore {
       reject(error);
     })
   }
-  // listeningMessage(room,success,reject){
-  //   console.log("listeningMessage")
-  //   firebase.firestore().collection('Message')
-  //   .where('roomId', '==' ,room)
-  //   .onSnapshot(function(snapshot){
-  //     var massage=[];
-  //     snapshot.docChanges().forEach(function(change){
-  //       if(change.type==="added"){
-  //         console.log(change.doc)
-  //         //let mes=change.doc.data()
-  //         //mes.createdDate=change.doc.data().createdDate.toDate()
-  //         //messsage=massage.push(mes)
-  //       }
-  //     })
-  //     //console.log(massage)
-  //     // massage.sort((a,b)=>b.createdDate.getTime()-a.createdDate.getTime())
-  //     success(massage)
-  //   },function(error){
-  //     reject(error);
-  //   })
-  // }
   signIn = (email, password, success, reject) => {
     firebase.auth().signInWithEmailAndPassword(email, password)
       .then((user) => {

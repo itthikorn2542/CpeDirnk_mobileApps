@@ -61,6 +61,22 @@ class Storage {
     })
       
   };
+  ///////////////////////////////////////////////////////////////////////
+  uploadProfileToFirebase=async(uri,name,success,reject)=>{
+    const response = await fetch(uri);
+    const blob = await response.blob();
+    var ref =firebase.storage().ref().child('profile/'+name);
+    ref.put(blob)
+    .then(function(snapshot){
+      snapshot.ref.getDownloadURL()
+      .then(function(uri){
+        success(uri);
+      })
+    })
+    .catch(function(error){
+      reject(error);
+    });
+  }
 
   ////////////////////////////////////////////////////////////////////////
     
