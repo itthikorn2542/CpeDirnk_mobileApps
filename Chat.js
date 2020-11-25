@@ -11,46 +11,76 @@ class Chat extends Component {
   constructor(props){
     super(props);
      this.state = {
-        user:[{
-          id: '1',
-          users:{
-            id: 'u2',
-            name: 'Watcharawit',
-            imageUri: 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80',
-          },
-          lastMessage: {
-            id: 'm1',
-            content: 'hi!',
-            createdAt: '2020-10-03T14:48:00.000Z',
-            sender:"1"
-          }
-        },
-        {
-          id: '2',
-          users:{
-            id: 'u2',
-            name: 'Watcharawit1',
-            imageUri: 'https://images.unsplash.com/photo-1574144611937-0df059b5ef3e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=400&q=80',
-          },
-          lastMessage: {
-            id: 'm1',
-            content: 'hiaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!!',
-            createdAt: '2020-10-03T14:48:00.000Z',
-            sender:"2"
-          }
-        }],
+       roomId:[],
+       items:[],
+       data:[],
+       search:null,
+       amount:null,
+       count:0
     };
   }
   componentDidMount(){
-    console.log("get all friend")
-    console.log(this.props.profile.id)
-    //firestore.getFriend(this.props.profile.id,this.getFriendSuccess,this.unsucess);
+    firestore.getFriend(this.props.profile.id,this.getFriendSuccess,this.unsucess);
   }
+  getFriendAccountSuccess=(doc)=>{
+    console.log("getFriendAccountSuccess")
+    let account = doc.data();
+    account.roomId = this.state.roomId[this.state.count];
+    console.log('rooooooooooomid'+this.state.roomId[this.state.count])
+    this.setState({items:this.state.items.concat(account)});
+    this.setState({data:this.state.data.concat(account)});
+    console.log(account)
+    this.setState({count:this.state.count+1})
+  }
+  getFriendSuccess= async (querySnapshot)=>{
+    if(querySnapshot.docs.length>0){
+      var myID = this.props.profile.id;
+      this.setState({items:[]});
+      var friend=[]
+      var roomIDD=[]
+      querySnapshot.forEach(function(doc){
+        let friendID = null
+        if(doc.data().member[0]==myID){
+          friendID = doc.data().member[1];
+        }else{
+          friendID = doc.data().member[0];
+        }
+        console.log('roomm555'+doc.data().member[0])
+        console.log('roomm555'+doc.data().member[1])
+        console.log('roomm555'+doc.id)
+        roomIDD.push(doc.id)
+        friend.push(friendID);
+      });
+      this.setState({roomId:[]})
+      this.setState({roomId:roomIDD})
+      console.log('roomm555'+roomIDD)
+      this.setState({amount:friend.length})
+      for(let i=0;i<friend.length;i++){
+        await firestore.getAccountWithID(friend[i],this.getFriendAccountSuccess,this.unsucess);
+      }
+    }
+  }
+  unsucess=(error)=>{
+    console.log(error)
+  }
+  searchAction=(text)=>{
+    const newData=this.state.data.filter(item=>{
+        const itemData=`${item.name.toUpperCase()}`;
+        const textData=text.toUpperCase();
+        return itemData.indexOf(textData) > -1;
+
+    });
+    this.setState({
+      items:newData,
+        search:text
+    });
+    console.log(this.state.search)
+}
   Header=()=>{
     return(
       <View style={styles.header}>
         <FontAwesome name="search" size={24} color="gray" style={styles.icons}/>
-        <TextInput style={styles.inputHeader} placeholder="Search" ></TextInput>
+        <TextInput style={styles.inputHeader} placeholder="Search" onChangeText={text=>this.searchAction(text)}></TextInput>
       </View>
     )
     
@@ -69,16 +99,16 @@ class Chat extends Component {
   renderItem=({item})=>{
     return(
       <View style={{marginHorizontal:10}}>
-        <TouchableOpacity style={{backgroundColor:"#E5E5E5"}}  onPress={()=>this.props.navigation.navigate("PageChat",{roomID:item.id,username:item.users.name})} >
+        <TouchableOpacity style={{backgroundColor:"#E5E5E5"}}  onPress={()=>this.props.navigation.navigate("PageChat",{roomID:item.roomId,username:item.name})} >
             <View style={styles.container}>
                 <View style={styles.lefContainer}>
-                  <Image style={styles.profile} source={{uri:item.users.imageUri}}/>
+                  <Image style={styles.profile} source={{uri:item.avatar}}/>
                     <View style={styles.midContainer}>
-                      <Text style={styles.name}>{item.users.name}</Text>
-                      <Text style={styles.lastMessage} numberOfLines={1}>{item.lastMessage.content}</Text>
+                      <Text style={styles.name}>{item.name}</Text>
+                      <Text style={styles.lastMessage} numberOfLines={1}>{this.props.profile.caption}</Text>
                     </View>
                 </View>
-                <Text style={styles.time}>{moment(item.lastMessage.createdAt).format("DD/MM/YYYY")}</Text>
+                {/* <Text style={styles.time}>{moment(item.lastMessage.createdAt).format("DD/MM/YYYY")}</Text> */}
 	        </View>
         </TouchableOpacity>
       </View>
@@ -91,7 +121,7 @@ class Chat extends Component {
         <this.Header/>
         <FlatList
           style={{width:"100%"}}
-          data={this.state.user}
+          data={this.state.items}
           renderItem={this.renderItem}
           keyExtractor={item => item.id}
           ItemSeparatorComponent={this.renderSeparator}

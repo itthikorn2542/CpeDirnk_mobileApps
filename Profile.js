@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import {
-  View, Text, StyleSheet, Image, TouchableOpacity, Modal
+  View, Text, StyleSheet, Image, TouchableOpacity, Modal, ActivityIndicator
 } from 'react-native';
+import { render } from 'react-dom'
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
@@ -9,6 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { TextInput } from 'react-native-gesture-handler';
 import { Feather } from '@expo/vector-icons';
 import firestore from './firebase/Firestore'
+import storage from './firebase/Storage';
 import * as ImagePicker from 'expo-image-picker';
 
 import { connect } from 'react-redux';
@@ -18,67 +20,113 @@ class Profile extends Component {
     super(props);
     this.state = {
       modalVisible: false,
-      avatar:this.props.profile.avatar,
-      name:this.props.profile.name,
-      caption:this.props.profile.caption,
-      fb:this.props.profile.fb,
-      ig:this.props.profile.ig,
-      line:this.props.profile.line,
+      avatar: this.props.profile.avatar,
+      name: this.props.profile.name,
+      caption: this.props.profile.caption,
+      fb: this.props.profile.fb,
+      ig: this.props.profile.ig,
+      line: this.props.profile.line,
+      loading: false
     };
   }
-  onSignOutSuccess=()=>{
+  onSignOutSuccess = () => {
     console.log('Sign Out Success');
   }
-  unsuccess=(error)=>{
+  unsuccess = (error) => {
     console.log(error)
   }
-  updateAccountSuccess=()=>{
+  updateAccountSuccess = () => {
     console.log("update account success")
-    let user={
-      id:this.props.profile.id,
-      avatar:this.state.avatar,
-      name:this.state.name,
-      caption:this.state.caption,
-      fb:this.state.fb,
-      ig:this.state.ig,
-      line:this.state.line,
+    let user = {
+      id: this.props.profile.id,
+      avatar: this.state.avatar,
+      name: this.state.name,
+      caption: this.state.caption,
+      fb: this.state.fb,
+      ig: this.state.ig,
+      line: this.state.line,
     }
     this.props.save(user);
-  }
-  updateAccount=async()=>{
-    let user={
-      avatar:this.state.avatar,
-      name:this.state.name,
-      caption:this.state.caption,
-      fb:this.state.fb,
-      ig:this.state.ig,
-      line:this.state.line,
-    }
-    await firestore.updateAccountByID(user,this.props.profile.id,this.updateAccountSuccess,this.unsuccess)
+    this.setState({loading:false})
     this.setState({ modalVisible: false });
   }
-  onLogout=()=>{
-    firestore.signOut(this.onSignOutSuccess,this.onReject);
+  updateAccount = async () => {
+    if (this.state.avatar === this.props.profile.avatar) {
+      this.setState({loading:true})
+      let user = {
+        avatar: this.props.profile.avatar,
+        name: this.state.name,
+        caption: this.state.caption,
+        fb: this.state.fb,
+        ig: this.state.ig,
+        line: this.state.line,
+      }
+      await firestore.updateAccountByID(user, this.props.profile.id, this.updateAccountSuccess, this.unsuccess)
+    }
+    else {
+      console.log('upload........')
+      this.setState({loading:true})
+      let keys = Math.random().toString();
+      await storage.uploadProfileToFirebase(this.state.avatar, keys, this.uploadSuccess, this.uploadError, this.onUpload);
+    }
+    //this.setState({ modalVisible: false });
+  }
+  uploadSuccess = async (uri) => {
+    let user = {
+      avatar: uri,
+      name: this.state.name,
+      caption: this.state.caption,
+      fb: this.state.fb,
+      ig: this.state.ig,
+      line: this.state.line,
+    }
+    await firestore.updateAccountByID(user, this.props.profile.id, this.updateAccountSuccess, this.unsuccess)
+  }
+  onUpload = (progress) => {
+    console.log(progress);
+  }
+
+  uploadError = (error) => {
+    console.log(error);
+  }
+  onLogout = () => {
+    firestore.signOut(this.onSignOutSuccess, this.onReject);
   }
   setModalVisible = (visible) => {
-    this.setState({avatar:this.props.profile.avatar})
-    this.setState({name:this.props.profile.name})
-    this.setState({caption:this.props.profile.caption})
-    this.setState({fb:this.props.profile.fb})
-    this.setState({ig:this.props.profile.ig})
-    this.setState({line:this.props.profile.line})
+    this.setState({ avatar: this.props.profile.avatar })
+    this.setState({ name: this.props.profile.name })
+    this.setState({ caption: this.props.profile.caption })
+    this.setState({ fb: this.props.profile.fb })
+    this.setState({ ig: this.props.profile.ig })
+    this.setState({ line: this.props.profile.line })
     this.setState({ modalVisible: visible });
   }
-  pickImage= async()=>{
+  pickImage = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes:ImagePicker.MediaTypeOptions.All,
-      allowsEditing:true,
-      quality:1
+      mediaTypes: ImagePicker.MediaTypeOptions.All,
+      allowsEditing: true,
+      quality: 1
     });
 
-    if(!result.cancelled){
-      console.log(result);
-      this.setState({avatar:result.uri});
+    if (!result.cancelled) {
+      console.log("image")
+      console.log(result.uri);
+      this.setState({ avatar: result.uri });
+    }
+  }
+  renderButton() {
+    if (this.state.loading) {
+      return (<ActivityIndicator size='large' color='black' />);
+    } 
+    else {
+      return (<View style={styles.modalMid}>
+                <View style={styles.modalMidLeft}>
+                  <Feather name="user" size={24} color="black" />
+                </View>
+                <View style={styles.modalMidRight}>
+                  <TextInput style={styles.textInput} value={this.state.name} onChangeText={(text) => this.setState({ name: text })}></TextInput>
+                </View>
+              </View>);
     }
   }
   render(props) {
@@ -98,26 +146,19 @@ class Profile extends Component {
           <View style={styles.centeredView}>
             <View style={styles.modalView}>
               <TouchableOpacity onPress={this.pickImage}>
-                 <View style={styles.profile}>
+                <View style={styles.profile}>
                   <Image style={styles.image} source={{ uri: this.state.avatar }} />
                 </View>
               </TouchableOpacity>
               <View style={{ height: 2, backgroundColor: 'gray', width: 300, margin: 20 }}></View>
-              <View style={styles.modalMid}>
-                <View style={styles.modalMidLeft}>
-                  <Feather name="user" size={24} color="black" />
-                </View>
-                <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value={this.state.name} onChangeText={(text)=>this.setState({name:text})}></TextInput>
-                </View>
-              </View>
+              {this.renderButton()}
 
               <View style={styles.modalMid}>
                 <View style={styles.modalMidLeft}>
                   <MaterialIcons name="description" size={28} color="black" />
                 </View>
                 <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value={this.state.caption} onChangeText={(text)=>this.setState({caption:text})}></TextInput>
+                  <TextInput style={styles.textInput} value={this.state.caption} onChangeText={(text) => this.setState({ caption: text })}></TextInput>
                 </View>
               </View>
 
@@ -126,7 +167,7 @@ class Profile extends Component {
                   <AntDesign name="facebook-square" size={24} color="black" />
                 </View>
                 <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value={this.state.fb} onChangeText={(text)=>this.setState({fb:text})}></TextInput>
+                  <TextInput style={styles.textInput} value={this.state.fb} onChangeText={(text) => this.setState({ fb: text })}></TextInput>
                 </View>
               </View>
 
@@ -135,7 +176,7 @@ class Profile extends Component {
                   <AntDesign name="instagram" size={24} color="black" />
                 </View>
                 <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value={this.state.ig} onChangeText={(text)=>this.setState({ig:text})}></TextInput>
+                  <TextInput style={styles.textInput} value={this.state.ig} onChangeText={(text) => this.setState({ ig: text })}></TextInput>
                 </View>
               </View>
 
@@ -144,27 +185,27 @@ class Profile extends Component {
                   <FontAwesome5 name="line" size={24} color="black" />
                 </View>
                 <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value={this.state.line} onChangeText={(text)=>this.setState({line:text})}></TextInput>
+                  <TextInput style={styles.textInput} value={this.state.line} onChangeText={(text) => this.setState({ line: text })}></TextInput>
                 </View>
               </View>
-              <View style={{ height: 2, backgroundColor: 'gray', width:300, margin: 20 }}></View>
+              <View style={{ height: 2, backgroundColor: 'gray', width: 300, margin: 20 }}></View>
 
               <View style={styles.modalFooter}>
-                <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                   <TouchableOpacity
                     onPress={() => {
                       this.setModalVisible(!modalVisible);
                     }}
                   >
-                    <Text style={{fontSize:18,fontFamily:'kanitRegular'}}>ยกเลิก</Text>
+                    <Text style={{ fontSize: 18, fontFamily: 'kanitRegular' }}>ยกเลิก</Text>
                   </TouchableOpacity>
                 </View>
-                
-                <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                   <TouchableOpacity
                     onPress={this.updateAccount}
                   >
-                    <Text style={{fontSize:18,fontFamily:'kanitRegular',color:'#6F0CEE'}}>ยืนยัน</Text>
+                    <Text style={{ fontSize: 18, fontFamily: 'kanitRegular', color: '#6F0CEE' }}>ยืนยัน</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -176,47 +217,47 @@ class Profile extends Component {
 
         <View style={styles.header}>
           <View style={styles.profile}>
-            <Image style={styles.image} source={{ uri:this.props.profile.avatar }} />
+            <Image style={styles.image} source={{ uri: this.props.profile.avatar }} />
           </View>
         </View>
         <View style={styles.mid}>
           <Text style={styles.name}>{this.props.profile.name}</Text>
-          <View style={{ flexDirection: 'column', flex: 1,justifyContent: 'space-evenly',alignItems:'center' }}>
-            <View style={{flexDirection: 'row', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'column', flex: 1, justifyContent: 'space-evenly', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <MaterialIcons name="description" size={28} color="black" />
               <Text style={styles.txtDescription}>  {this.props.profile.caption}</Text>
             </View>
 
-            <View style={{flexDirection: 'row', alignItems: 'center' }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <AntDesign name="facebook-square" size={24} color="black" />
               <Text style={styles.txtDescription}>  {this.props.profile.fb}</Text>
             </View>
 
-            <View style={{flexDirection: 'row', alignItems: 'center' }}>
-            <AntDesign name="instagram" size={24} color="black" />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <AntDesign name="instagram" size={24} color="black" />
               <Text style={styles.txtDescription}>   {this.props.profile.ig}</Text>
             </View>
 
-            <View style={{flexDirection: 'row', alignItems: 'center' }}>
-            <FontAwesome5 name="line" size={24} color="black" />
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <FontAwesome5 name="line" size={24} color="black" />
               <Text style={styles.txtDescription}>   {this.props.profile.line}</Text>
             </View>
           </View>
         </View>
         <View style={styles.footer}>
-        <TouchableOpacity onPress={() => { this.setModalVisible(true); }}>
-          <View style={styles.editProfile}>
-            <AntDesign name="setting" size={24} color="black" />
-            <Text style={{ fontSize: 16, fontFamily: 'kanitLight' }}> ตั้งค่าโปรไฟล์</Text>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={() => { this.setModalVisible(true); }}>
+            <View style={styles.editProfile}>
+              <AntDesign name="setting" size={24} color="black" />
+              <Text style={{ fontSize: 16, fontFamily: 'kanitLight' }}> ตั้งค่าโปรไฟล์</Text>
+            </View>
+          </TouchableOpacity>
 
-        <TouchableOpacity onPress={this.onLogout}>
-          <View style={styles.logOut}>
-            <Ionicons name="ios-log-out" size={24} color="white" />
-            <Text style={{ fontSize: 16, color: 'white', fontFamily: 'kanitLight' }}> ออกจากระบบ</Text>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity onPress={this.onLogout}>
+            <View style={styles.logOut}>
+              <Ionicons name="ios-log-out" size={24} color="white" />
+              <Text style={{ fontSize: 16, color: 'white', fontFamily: 'kanitLight' }}> ออกจากระบบ</Text>
+            </View>
+          </TouchableOpacity>
         </View>
 
       </View>
@@ -242,7 +283,7 @@ const styles = StyleSheet.create({
   },
   profile: {
     width: 150,
-    height:150,
+    height: 150,
     backgroundColor: 'gray',
     borderRadius: 100
   },
@@ -305,32 +346,32 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
     elevation: 5,
-    width:350,
-    height:570
+    width: 350,
+    height: 570
   },
-  modalMid:{
-    flexDirection:'row'
+  modalMid: {
+    flexDirection: 'row'
   },
-  modalMidLeft:{
-    width:"10%",
-    justifyContent:'center'
+  modalMidLeft: {
+    width: "10%",
+    justifyContent: 'center'
   },
-  modalMidRight:{
-    width:"90%",
+  modalMidRight: {
+    width: "90%",
     height: 40,
     borderRadius: 20,
     backgroundColor: '#E5E5E5',
-    margin:5
+    margin: 5
   },
-  textInput:{
+  textInput: {
     flex: 1,
     fontSize: 16,
     fontFamily: 'kanitLight',
     textAlign: 'center'
   },
-  modalFooter:{
-    flexDirection:'row',
-    justifyContent:'space-evenly'
+  modalFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly'
   }
 
 });

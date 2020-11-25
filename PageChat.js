@@ -4,27 +4,64 @@ import {
   View, Text, StyleSheet, Image, FlatList, TextInput, TouchableOpacity
 } from 'react-native';
 
+import { connect } from 'react-redux';
+import { saveProfile } from './actions/profile';
+
+import firestore from "./firebase/Firestore"
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 class PageChat extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      messages: [{
-        id: '1',
-        sender: "Watcharawit",
-        content: 'หวัดดี ครับ A !!',
-        createdAt: '2020-11-19T08:00:00.000Z',
-      }, {
-        id: '2',
-        sender: "B",
-        content: 'หวัดดี ครับ B !!',
-        createdAt: '2020-11-19T08:05:00.000Z',
-      }],
+      messages: [],
+      id:this.props.profile.id,
+      text:null,
     };
     const { route } = this.props;
     this.username = route.params.username;
     this.room = route.params.roomID;
-    console.log("Username :" + this.username + " Room: " + this.room)
+    console.log("Username :" + this.username + " Room: "+this.room)
+  }
+  async componentDidMount(){
+    await firestore.listeningMessage(this.room,this.listeningSuccess,this.unsuccess)
+  }
+  componentWillUnmount(){
+    console.log("componentWillUnmount")
+  }
+  listeningSuccess=(messages)=>{
+    console.log("listeningSuccess message")
+    console.log(messages)
+    var message=[]
+    messages.forEach(function(data){
+          let mes=data
+          // mes.createdDate=new Date(data.createdDate);
+          mes.createdDate=data.createdDate.toDate();
+          message.push(mes)
+      })
+    message.sort((a,b)=>a.createdDate.getTime()-b.createdDate.getTime())
+    console.log(message)
+    this.setState({messages:this.state.messages.concat(message)})
+  }
+  onSend= async ()=>{
+    const a = new Date();
+    let newMessages={
+      sender: this.state.id,
+      roomId:this.room,
+      content:this.state.text,
+      createdDate:a
+    }
+    console.log(newMessages)
+
+    if(this.state.text!==null){
+      await firestore.sendMessage(newMessages,this.sendSuccess,this.unsuccess);
+    }
+  }
+  sendSuccess=(docRef)=>{
+    console.log(docRef.id)
+    //this.setState({text:null})
+  }
+  unsuccess=(error)=>{
+    console.log(error)
   }
   renderSeparator = () => {
     return (
@@ -36,23 +73,22 @@ class PageChat extends Component {
     );
   };
   renderItem = ({ item }) => {
-    console.log(item.message)
     return (
-      <View>
-        {item.sender===this.username&&
+      <View style={{marginRight:10}}>
+        {item.sender===this.state.id &&
         <View style={{flexDirection:"row",justifyContent:"flex-end"}}>
           <View style={styles.Sender}>
               <Text style={styles.txtSender} >{item.content}</Text>
-              <Text style={styles.time}>{moment(item.createdAt).fromNow()}</Text>
+              <Text style={styles.time}>{moment(item.createdDate).fromNow()}</Text>
           </View>
           
        </View>}
 
-       {item.sender!==this.username&&
+       {item.sender!==this.state.id &&
         <View style={{flexDirection:"row",borderRadius:20}}>
           <View style={styles.Receiver}>
               <Text style={styles.txtReceiver}>{item.content}</Text>
-              <Text style={styles.time}>{moment(item.createdAt).fromNow()}</Text>
+              <Text style={styles.time}>{moment(item.createdDate).fromNow()}</Text>
           </View>
        </View>}
       </View>
@@ -77,6 +113,7 @@ class PageChat extends Component {
           <TextInput
             placeholder="Message"
             style={styles.textInput}
+            //value={this.state.Text}
             onChangeText={txt => { this.setState({ text: txt }) }} />
 
           <TouchableOpacity
@@ -120,7 +157,6 @@ const styles = StyleSheet.create({
     borderTopLeftRadius:20,
     borderBottomRightRadius:20,
     padding:8,
-    marginLeft:4,
     flexShrink:1,
     backgroundColor: "#C0C0C0",
 
@@ -131,6 +167,7 @@ const styles = StyleSheet.create({
     borderTopRightRadius:20,
     borderBottomLeftRadius:20,
     padding:8,
+    marginLeft:8,
     flexShrink:1,
     backgroundColor: "#ffffff",
   },
@@ -151,6 +188,16 @@ const styles = StyleSheet.create({
   },
 });
 
+const mapStateToProps = (state) => {
+  return {
+    profile: state.profileReducer.profile
+  }
+}
 
+const mapDispatchToProps = (dispatch) => {
+  return {
+    save: (profile) => dispatch(saveProfile(profile)),
+  };
+};
 
-export default PageChat;
+export default connect(mapStateToProps, mapDispatchToProps)(PageChat);
