@@ -23,8 +23,10 @@ class Home extends Component {
     super(props);
      this.state = {
       showModal:false,
-      picture:null,
+      img:null,
       caption:"",
+      linkImage:null,
+      type:"txt"
 
     };
   }
@@ -37,7 +39,7 @@ class Home extends Component {
 
     if(!result.cancelled){
       console.log(result);
-      this.setState({picture:result.uri});
+      this.setState({img:result.uri});
     }
   }
   componentDidMount=()=>{
@@ -61,54 +63,82 @@ class Home extends Component {
 
   addSuccess=(docRef)=>{
     this.setState({showModal:false});
+    console.log("img====>"+this.state.img)
     let posts=[];
       let post={
           id:docRef.id,
           caption:this.state.caption,
-          type:"txt"
+          type:this.state.type,
+          linkImage:this.state.img
       }
       posts=posts.concat(post)
       this.props.add(posts);
+      this.setState({img:null});
+      this.setState({linkImage:null})
   
   }
-
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+///////////////////////////////////////////////////////////////////////////////////////////////////
+uploadSuccess=async(uri)=>{
+  console.log(uri)
+  this.setState({type:"img"})
+  this.setState({linkImage:uri})
+  let post = {
+    caption:this.state.caption,
+    type:"img",
+    linkImage:this.state.linkImage,
+  }
+  await firestore.addPost(post,this.addSuccess,this.addUnSuccess);
+}
+////////////////////////////////////////////////////////
+onUpload=(progress)=>{
+  console.log(progress);
+}
+/////////////////////////////////////////////////////////
+uploadError=(error)=>{
+  console.log(error);
+}
+////////////////////////////////////////////////////////
+  ////////////////////////////////////////////////////////////////////////////////////////////////////
+  ///////////////////////////////////////////////////////////////////////////////////////////////////
   AddPost = async()=>{
     this.setState({showModal:false});
-    this.setState({picture:null})
-    let keys = Math.random().toString();
-    console.log('add success')
+    if(this.state.img!=null){
+      
+      let key = Math.random().toString()
+      console.log('add success')
+      await storage.uploadToFirebase(this.state.img,key,this.uploadSuccess,this.uploadError);
+    }
+    else{
       let post = {
         caption:this.state.caption,
         type:"txt",
-        keys:keys,
+        linkImage:this.state.linkImage,
       }
       await firestore.addPost(post,this.addSuccess,this.addUnSuccess);
-      await storage.uploadToFirebase2(this.state.picture,keys,this.uploadSuccess,this.uploadError,this.onUpload);
+    }
       
   }
-  uploadSuccess=(uri)=>{
-    console.log(uri)
-    console.log("Uploaded...");
-  }
-  onUpload=(progress)=>{
-    console.log(progress);
-  }
-
-  uploadError=(error)=>{
-    console.log(error);
-  }
+  
 
   renderItem=({item})=>{
-
+    console.log("date:--->"+moment(item.createdDate.toDate()).fromNow())
     return(
       <View style={{padding:8}}>
+      {/* <View style={styles.postStatus}>
+            <Image style={{height:50,width:50,borderRadius:50}} 
+                   source={{uri:}}></Image>
+              <View style={{backgroundColor:'#E1E1E1',height:40,borderRadius:40,justifyContent:'center'}}>
+                <Text style={{marginLeft:10,fontFamily:'kanitRegular'}}>บอกความรู้สึกของคุณ</Text>
+              </View>
+        </View> */}
         <Card>
-            <Card.Title style={{fontFamily:'kanitSemiBold'}} title="CPEขี้เมา" subtitle="date"
+            <Card.Title style={{fontFamily:'kanitSemiBold'}} title="CPEขี้เมา" subtitle={moment(item.createdDate.todate).fromNow()}
             left={()=>(<Avatar.Image size={50} source={{uri:this.props.type.avatar}}/>)}/>
             <Card.Content>
-            <Paragraph><Text style={{fontFamily:'kanitRegular',fontSize:18}}>{item.caption}</Text></Paragraph>
+            <Paragraph ><Text style={{fontFamily:'kanitRegular',fontSize:18,marginTop:10}}>{item.caption}</Text></Paragraph>
             </Card.Content>
-            {item.type=="img"&&<Card.Cover source={{uri:item.url}}/>}
+            {item.type=="img"&&<Card.Cover source={{uri:item.linkImage}}/>}
           </Card>
       </View>
     );
@@ -159,7 +189,7 @@ class Home extends Component {
                       <View style={{flex:10}}>
                         <View style={{flex:1,margin:10,}}>
                           <TextInput onChangeText={(txt)=>{this.setState({caption:txt})}} multiline={true} placeholder="บอกความรู้สึกของคุณ..." style={{marginLeft:10,fontSize:18,width:'96%',fontFamily:'kanitRegular'}}></TextInput>
-                          {this.state.picture!=null&&<Image style={{flex:1,marginTop:5,resizeMode:'cover'}} source={{uri:this.state.picture}}></Image>}
+                          {this.state.img!=null&&<Image style={{flex:1,marginTop:5,resizeMode:'cover'}} source={{uri:this.state.img}}></Image>}
                         </View>
                         <View style={{flex:1}}>
                            <View style={{height:1,backgroundColor:'#00000060'}}></View>

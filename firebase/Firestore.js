@@ -135,7 +135,6 @@ class Firestore {
     firebase
       .firestore()
       .collection('Song')
-      .orderBy("createdDate")
       .get()
       .then(function (querySnapshot) {
         success(querySnapshot);
@@ -158,7 +157,6 @@ class Firestore {
       });
   };
   addPost=(post,success,reject)=>{
-    console.log('firebase post')
     post.createdDate = firebase.firestore.FieldValue.serverTimestamp();
     firebase.firestore().collection('Post').add(post)
     .then(function(docRef){

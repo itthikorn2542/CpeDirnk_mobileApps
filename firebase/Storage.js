@@ -20,15 +20,13 @@ class Storage {
     }
   ////////////////////////////////////////////////////////////////////////
   ////////////////////////////////////////////////////////////////////////
-  uploadToFirebase = async (uri, id, success, reject) => {
+  uploadToFirebase = async (uri,name,success, reject) => {
     const response = await fetch(uri);
     const blob = await response.blob();
-    console.log('fetch ok')
     var ref = firebase
       .storage()
       .ref()
-      .child('imagePost/' + id);
-    ref
+      .child('image/' + name)
       .put(blob)
       .then(function (snapshot) {
         let uri = snapshot.ref.getDownloadURL()

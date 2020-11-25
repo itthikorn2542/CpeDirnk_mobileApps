@@ -9,7 +9,7 @@ import * as song from './song.json'
 import {connect} from 'react-redux';
 import firestore from './firebase/Firestore'
 
-import {addSong} from './actions/actionSong'
+import {addSong,saveSong} from './actions/actionSong'
 class Song extends Component {
   constructor(props){
     super(props);
@@ -38,20 +38,21 @@ class Song extends Component {
       </View>
     );
   }
+  //////////////////////////////////////////////////////////////////////////////////
   componentDidMount=()=>{
     firestore.getAllSong(this.success,this.addUnSuccess);
   }
+  //////////////////////////////////////////////////////////////////////////////////
   success = (querySnapshot) => {
     //console.log(querySnapshot)
-    this.setState({ song: [] })
-
     var songs = []
     querySnapshot.forEach(function(doc){ 
       let song = doc.data()
       song.id  = doc.id
       songs = songs.concat(song)
     })
-    this.props.add(songs)
+    this.props.save(songs);
+    console.log(songs)
   }
   addSuccess=(docRef)=>{
     this.setState({showModal:false});
@@ -80,6 +81,8 @@ class Song extends Component {
       await firestore.addSong(song,this.addSuccess,this.addUnSuccess);
       
   }
+
+
   render(props) {
     const { navigation } = this.props;
     return (
@@ -238,7 +241,8 @@ const styles = StyleSheet.create({
   
   const mapDispatchToProps=(dispatch)=>{
     return{
-      add:(name,singer,detail)=>dispatch(addSong(name,singer,detail))
+      add:(name,singer,detail)=>dispatch(addSong(name,singer,detail)),
+      save:(name,singer,detail)=>dispatch(saveSong(name,singer,detail))
     }
   }
   

@@ -7,7 +7,7 @@ import { FontAwesome5 } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import * as meno from './meno.json';
 import * as listFood from './listFood.json';
-
+import {connect} from 'react-redux';
 class Food extends Component {
   constructor(props){
     super(props);
@@ -86,7 +86,7 @@ class Food extends Component {
                         <Text style={{fontSize:20,marginTop:15,fontFamily:'kanitSemiBold'}}>{item.name}</Text>
                         <Text style={{fontSize:15,marginTop:35,fontFamily:'kanitSemiBold'}}>โต๊ะ</Text>
                         <View style={{borderWidth:1,height:52,width:'40%',borderRadius:35,justifyContent:'center',alignItems:'center'}}>
-                          <TextInput  keyboardType='number-pad'  placeholder="กรอกเลขโต๊ะ" style={{fontFamily:'kanitSemiBold',textAlign:'center'}}></TextInput>
+                          <TextInput  keyboardType='number-pad'  placeholder={this.props.type.caption} style={{fontFamily:'kanitSemiBold',textAlign:'center'}}></TextInput>
                         </View>
                         <Text style={{fontSize:15,marginTop:25,fontFamily:'kanitSemiBold'}}>จำนวน</Text>
                         <View style={{flexDirection:'row',marginTop:2}}>
@@ -226,6 +226,10 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
   }
   });
+  const mapStateToProps=(state)=>{
+    return{
+      type:state.profileReducer.profile,
+    }
+  }
 
-
-export default Food;
+export default connect(mapStateToProps)(Food);
