@@ -1,4 +1,4 @@
-import {ADD_SONG,SAVE_SONG} from '../actions/types'
+import {ADD_SONG,SAVE_SONG,DELETE_SONG} from '../actions/types'
 
 const intialState={
   songList:[]
@@ -16,6 +16,11 @@ const songReducer=(state=intialState,action)=>{
       return{ 
         ...state,
         songList:action.data
+      }
+      case DELETE_SONG:
+      return{
+        ...state,
+        songList:state.songList.filter((item)=>item.id!==action.data.id)
       }
     
       default:

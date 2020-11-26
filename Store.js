@@ -6,7 +6,7 @@ import { createStore, combineReducers } from 'redux';
 const rootReducer = combineReducers({
   profileReducer:profileReducer,
   songReducer:songReducer,
-  postReducer:postReducer
+  postReducer:postReducer,
 })
 
 

@@ -9,19 +9,40 @@ import * as song from './song.json'
 import {connect} from 'react-redux';
 import firestore from './firebase/Firestore'
 
-import {addSong,saveSong} from './actions/actionSong'
+import {addSong,deleteSong,saveSong} from './actions/actionSong'
 class Song extends Component {
   constructor(props){
     super(props);
      this.state = {
         showModal:false,
-        name:null,
-        singer:null,
-        detail:null,
+        name:"-",
+        singer:"-",
+        detail:"-",
         song:[],
-        songID:null
+        songID:null,
+        popup:false,
+        selectName:'',
+        selectSinger:'',
+        selectDetail:'',
 
     };
+  }
+  deleteSongSuccess=()=>{
+    let song = {
+      id:this.state.songID
+    }
+    this.props.del(song)
+    this.setState({selectName:this.state.name}),
+    this.setState({selectSinger:this.state.singer}),
+    this.setState({selectDetail:this.state.detail})
+  }
+  deleteSongUnsuccess=(error)=>{
+      console.log(error)
+  }
+  onSelected=()=>{
+    this.setState({popup:false})
+    firestore.deleteSongByID(this.state.songID,this.deleteSongSuccess,this.deleteSongUnsuccess)
+    
   }
   renderItem=({item})=>{
     return(
@@ -30,25 +51,60 @@ class Song extends Component {
             <View style={{backgroundColor:'#E2E2E2',height:80,width:70,borderRadius:10,margin:10,marginLeft:1,justifyContent:'center',alignItems:'center',marginLeft:10}}>
                 <Image source={{uri:'https://image.flaticon.com/icons/png/512/126/126493.png'}} style={{height:45,width:45}}></Image>
             </View>
-            <View style={{marginTop:5,marginBottom:5,height:100,width:200}}>
-                <Text style={{color:'black',marginLeft:10,fontSize:20,fontFamily:'kanitSemiBold'}}>{"เพลง: "+item.name}</Text>
+            <View style={{marginTop:5,marginBottom:5,height:100,width:230}}>
+                <Text style={{color:'black',marginLeft:10,fontSize:16,fontFamily:'kanitSemiBold'}}>{"เพลง: "+item.name}</Text>
                 <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"ศิลปิน: "+item.singer}</Text>
                 <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"เพิ่มเติม: "+item.detail}</Text>
             </View>
-            {this.props.type.type=="Admin"&&<TouchableOpacity>
-              <View style={{height:100,width:100,justifyContent:'center',alignItems:'center'}}>
+            {this.props.type.type=="Admin"&&<TouchableOpacity onPress={()=>{
+              this.setState({popup:true}),
+              this.setState({songID:item.id}),
+              this.setState({name:item.name}),
+              this.setState({singer:item.singer}),
+              this.setState({detail:item.detail})
+              }}>
+              <View style={{height:100,width:50,justifyContent:'center',alignItems:'center'}}>
                 <Entypo name="controller-play" size={50} color="black" />
             </View>
             </TouchableOpacity>}
-            
+            {this.state.songID==item.id&&<Modal transparent={true} visible={this.state.popup} animationType='fade'>
+              <View style={{flex:1,backgroundColor:'#00000060',justifyContent:'center',alignItems:'center'}}>
+                  <View style={{backgroundColor:'white',height:200,width:350,borderRadius:30,justifyContent:'space-evenly'}}>
+                      <View style={{height:100,width:'100%',flex:2,justifyContent:'center',alignItems:'center'}}>
+                        <Text style={{fontSize:20,fontFamily:'kanitSemiBold'}}>ต้องการเล่นเพลงนี้หรือไม่</Text>
+
+                      </View>
+                      <View style={{height:1,backgroundColor:'black',width:'100%'}}></View>
+                      <View style={{height:100,width:'100%',flex:1,flexDirection:'row',justifyContent:'space-evenly',alignItems:'center'}}>
+                      <TouchableOpacity style={{flex:1,height:100,justifyContent:'center',alignItems:'center',borderBottomLeftRadius:30}} onPress={()=>{this.setState({popup:false})}}>
+                        <View >
+                        <Text style={{fontSize:15,fontFamily:'kanitSemiBold'}}>ยกเลิก</Text>
+                      </View>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={{flex:1,height:100,justifyContent:'center',alignItems:'center',borderBottomRightRadius:30}} onPress={this.onSelected}>
+                        <View >
+                        <Text style={{fontSize:15,fontFamily:'kanitSemiBold'}}>เล่น</Text>
+                      </View>
+                      </TouchableOpacity>
+                      
+                      
+                      </View>
+
+                  </View>
+              </View>
+
+            </Modal>}
         </View>
       </View>
     );
   }
+
+  
   //////////////////////////////////////////////////////////////////////////////////
-  componentDidMount=()=>{
-    firestore.getAllSong(this.success,this.addUnSuccess);
+  componentDidMount=async()=>{
+    await firestore.getAllSong(this.success,this.addUnSuccess);
   }
+  //////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////
   success = (querySnapshot) => {
     //console.log(querySnapshot)
@@ -95,21 +151,25 @@ class Song extends Component {
 
   render(props) {
     const { navigation } = this.props;
+    console.log(this.state.song2)
     return (
       <View style={{flex:1}}>
+        <View style={{backgroundColor:'black',width:200,height:30,borderRadius:5,marginLeft:20,alignItems:'center',justifyContent:'center',marginBottom:15}}>
+          <Text style={{fontFamily:'kanitSemiBold',color:'white'}}>เพลงที่กำลังเล่น</Text>
+        </View>
         <View style={{backgroundColor:'black',height:100,borderWidth:1,borderRadius:10,marginLeft:20,marginRight:20,flexDirection:'row',marginBottom:15}}>
             <View style={{backgroundColor:'#E2E2E2',height:80,width:80,borderRadius:10,margin:10,justifyContent:'center',alignItems:'center'}}>
                 <Image source={{uri:'https://image.flaticon.com/icons/png/512/49/49831.png'}} style={{height:70,width:70}}></Image>
             </View>
             <View style={{width:1,height:75,backgroundColor:'white',marginTop:10}}></View>
             <View style={{marginTop:5,marginBottom:5}}>
-                <Text style={{color:'white',marginLeft:10,fontSize:20,fontFamily:'kanitSemiBold'}}>จี่หอย</Text>
-                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>พี สะเดิด</Text>
-                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>ให้โต๊ะ18</Text>
+    <Text style={{color:'white',marginLeft:10,fontSize:20,fontFamily:'kanitSemiBold'}}>เพลง: {this.state.selectName}</Text>
+                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>ศิลปิน: {this.state.selectSinger}</Text>
+                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>เพิ่มเติม: {this.state.selectDetail}</Text>
             </View>
         </View>
         <View style={{backgroundColor:'black',width:200,height:30,borderRadius:5,marginLeft:20,alignItems:'center',justifyContent:'center'}}>
-          <Text style={{fontFamily:'kanitSemiBold',color:'white'}}>คิวเพลงทั้งหมด {this.state.song.length} เพลง</Text>
+          <Text style={{fontFamily:'kanitSemiBold',color:'white'}}>คิวเพลงทั้งหมด {this.props.todos.length} เพลง</Text>
         </View>
 
         <FlatList
@@ -245,8 +305,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
 
     elevation: 5,
-    alignItems:'center',
-    justifyContent:'space-evenly'
+    alignItems:'center'
   }
 
   });
@@ -254,14 +313,15 @@ const styles = StyleSheet.create({
   const mapDispatchToProps=(dispatch)=>{
     return{
       add:(name,singer,detail)=>dispatch(addSong(name,singer,detail)),
-      save:(name,singer,detail)=>dispatch(saveSong(name,singer,detail))
+      save:(name,singer,detail)=>dispatch(saveSong(name,singer,detail)),
+      del:(data)=>dispatch(deleteSong(data)),
     }
   }
   
   const mapStateToProps=(state)=>{
     return{
       todos:state.songReducer.songList,
-      type:state.profileReducer.profile
+      type:state.profileReducer.profile,
     }
   }
 export default connect(mapStateToProps,mapDispatchToProps)(Song);

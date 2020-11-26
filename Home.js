@@ -139,7 +139,6 @@ deleteSuccess=()=>{
     id:this.state.deleteID
   }
   this.props.del(post)
-  console.log("deleted....id>>"+this.state.deleteID)
 }
 deleteUnSuccess=(error)=>{
   console.log(error)
@@ -157,7 +156,6 @@ updateSuccess=()=>{
     id:this.state.editID
   }
   this.props.edit(post)
-  console.log("edit....id>>"+this.state.editID)
   this.setState({img:null});
   this.setState({linkImage:null});
   this.setState({caption:null});
