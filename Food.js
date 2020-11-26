@@ -1,29 +1,40 @@
-import React, { Component } from 'react';
+import React, { Component, memo } from 'react';
 import {
   View,Text,StyleSheet,FlatList,Image,TouchableOpacity,Modal,TextInput
 } from 'react-native';
 import Constants from 'expo-constants';
 import { FontAwesome5 } from '@expo/vector-icons';
+import { FontAwesome } from '@expo/vector-icons';
 import { Entypo } from '@expo/vector-icons';
 import * as meno from './meno.json';
 import * as listFood from './listFood.json';
 import {connect} from 'react-redux';
+import firestore from './firebase/Firestore'
 import { MaterialIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { addOrder, saveOrder } from './actions/actionOrder';
+
 class Food extends Component {
   constructor(props){
     super(props);
     this.state = {
       selectedID:1,
       searchText:null,
+      showModalOrder:false,
       showModal:false,
       id:1,
       count:1,
       catagory:"",
-      selectedMenu:1
+      selectedMenu:1,
+      order:[],
+      name:null,
+      price:null,
    };
   }
+
+
+
   renderSeparator=()=>{
     return(
       <View style={{height:1,backgroundColor:'black'}}></View>
@@ -34,10 +45,41 @@ class Food extends Component {
       this.setState({count:this.state.count-1})
     }
   }
+  renderItem=({item})=>{
+    let bg = "white"
+    if(this.state.selectedMenu==item.id){
+      bg = "#FB7070"
+    }
+    return(
+        <View style={{padding:8}}>
+          <View style={{height:60,width:90,justifyContent:'space-evenly',alignItems:'center'}}>
+              <TouchableOpacity onPress={()=>{
+                this.setState({selectedMenu:item.id})
+                for(let i = 0;i<listFood.list.length;i++){
+                  if(item.name===listFood.list[i].type){
+                    this.FlatListRef.scrollToIndex({index:i});
+                    this.setState({selectedID:listFood.list[i].id})
+                  }
+                  
+                }
+                if(item.name=="เมนู"){
+                  this.FlatListRef.scrollToIndex({index:0});
+                    this.setState({selectedID:listFood.list[0].id})
+                }
+                }}>
+                <View style={{height:45,width:45,backgroundColor:bg,borderRadius:100,justifyContent:'center',alignItems:'center',borderWidth:1}}>
+                  <Image source={{uri:item.url}} style={{height:25,width:25}}></Image>
+              </View>
+              </TouchableOpacity>
+            </View>
+
+        </View>
+    );
+  }
   renderFood=({item})=>{
     return(
       <View style={{padding:8}}>
-        <TouchableOpacity onPress={()=>{this.setState({showModal:true}),this.setState({id:item.id})}}>
+        <TouchableOpacity onPress={()=>{this.setState({showModal:true}),this.setState({id:item.id}),this.setState({name:item.name}),this.setState({price:item.price})}}>
           <View style={styles.foodBar}>
             <View style={{flex:1,height:120,justifyContent:'center'}}>
               <Image source={{uri:item.url}} style={{height:80,width:80,marginLeft:15,borderRadius:15}}/>
@@ -70,7 +112,7 @@ class Food extends Component {
                         <Text style={{fontSize:20,marginTop:15,fontFamily:'kanitSemiBold'}}>{item.name}</Text>
                         <Text style={{fontSize:15,marginTop:35,fontFamily:'kanitSemiBold'}}>โต๊ะ</Text>
                         <View style={{borderWidth:1,height:52,width:'40%',borderRadius:35,justifyContent:'center',alignItems:'center'}}>
-                          <TextInput  keyboardType='number-pad'  placeholder={this.props.type.caption} style={{fontFamily:'kanitSemiBold',textAlign:'center'}}></TextInput>
+                          <TextInput  keyboardType='number-pad'  value={this.props.type.caption} style={{fontFamily:'kanitSemiBold',textAlign:'center'}}></TextInput>
                         </View>
                         <Text style={{fontSize:15,marginTop:25,fontFamily:'kanitSemiBold'}}>จำนวน</Text>
                         <View style={{flexDirection:'row',marginTop:2}}>
@@ -96,7 +138,7 @@ class Food extends Component {
                          <Text style={{fontFamily:'kanitSemiBold',fontSize:17,marginTop:40}}>ยกเลิก</Text>
                       </View>
                     </TouchableOpacity>
-                    <TouchableOpacity onPress={()=>{this.setState({showModal:false}),this.setState({count:1})}}>
+                    <TouchableOpacity onPress={this.onOrder}>
                       <View style={{justifyContent:'center',alignItems:'center',marginLeft:80}}>
                          <Text style={{fontFamily:'kanitSemiBold',color:'#8B63FB',fontSize:17,marginTop:40}}>สั่งซื้อ</Text>
                       </View>
@@ -106,52 +148,93 @@ class Food extends Component {
             </View>
           </Modal>}
         </TouchableOpacity>
+
+        
         
       </View>
     );
   }
+renderOrder=({item})=>{
+  return(
+    <View style={{padding:8}}>
+        <View style={styles.orderBar}>
+          <View style={{flex:1,flexDirection:'row'}}>
+              <View style={{backgroundColor:'black',height:40,width:40,borderTopLeftRadius:5,borderBottomRightRadius:10}}>
+                  <Text style={{fontSize:20,margin:5,color:'white'}}>{item.table}</Text>
+              </View>
+              <View style={{height:50,width:290,justifyContent:'center',alignItems:'center'}}>
+                    <Text style={{fontSize:20,fontFamily:'kanitSemiBold'}}>{item.name}</Text>
+              </View>
+          </View>
+          <View style={{flex:1,flexDirection:'row',justifyContent:'space-evenly',alignItems:'center',borderTopWidth:2}}>
+                <Text style={{fontSize:15,fontFamily:'kanitSemiBold'}}>จำนวน: {item.amount}</Text>
+                <Text style={{fontSize:15,fontFamily:'kanitSemiBold'}}>ราคา: {item.price}</Text>
+          </View>
+        </View>
+              
+      </View>
+  );
+  
+}
+success=(querySnapshot)=>{
+  var orders = []
+    querySnapshot.forEach(function(doc){ 
+      let order = doc.data()
+      order.id  = doc.id
+      orders = orders.concat(order)
+    })
+    this.props.save(orders);
+    this.setState({order:orders})
+    console.log(orders)
+}
+reject=(error)=>{
+  console.log(error)
+}
+componentDidMount= async()=>{
+ await firestore.getAllFood(this.success,this.reject)
+}
 
+orderSuccess=(docRef)=>{
+  this.setState({showModal:false});
+  let foods=[];
+    let food={
+        id:docRef.id,
+        name:this.state.name,
+        price:this.state.price,
+        table:this.props.type.caption,
+        amount:this.state.count
+    }
+    foods=foods.concat(food)
+    this.props.add(foods);
+    console.log("++++++++++++++++++++++++++++++++++++++")
+    console.log(foods);
+    this.setState({name:null})
+    this.setState({price:null})
+    this.setState({count:1})
+}
+onOrder= async()=>{
+  let food ={
+    name:this.state.name,
+    price:this.state.price,
+    table:this.props.type.caption,
+    amount:this.state.count
+  }
+  await firestore.addOrderFood(food,this.orderSuccess,this.reject)
+}
   render(props) {
-    const { navigation } = this.props;
-    let bg = "white"
-    if(this.state.selectedMenu==1){
-      let bg = "#FB7070"
-    }
-    else if(this.state.selectedMenu==2){
-      let bg = "#FB7070"
-    }
-    else if(this.state.selectedMenu==3){
-      let bg = "#FB7070"
-    }
-    else if(this.state.selectedMenu==4){
-      let bg = "#FB7070"
-    }
+    
     return (
       <View style={{flex:1}}>
-            <View style={{height:60,width:'100%',justifyContent:'space-evenly',flexDirection:'row',alignItems:'center'}}>
-              <TouchableOpacity >
-                <View style={{height:45,width:45,backgroundColor:'white',borderRadius:100,justifyContent:'center',alignItems:'center',borderWidth:1}}>
-                  <MaterialIcons name="menu" size={24} color="black" />
-              </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={{height:45,width:45,backgroundColor:'white',borderRadius:100,justifyContent:'center',alignItems:'center',borderWidth:1}}>
-                  <Ionicons name="ios-beer" size={24} color="black" />
-              </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={{height:45,width:45,backgroundColor:'white',borderRadius:100,justifyContent:'center',alignItems:'center',borderWidth:1}}>
-                    <MaterialIcons name="restaurant-menu" size={24} color="black" />
-              </View>
-              </TouchableOpacity>
-              <TouchableOpacity>
-                <View style={{height:45,width:45,backgroundColor:'white',borderRadius:100,justifyContent:'center',alignItems:'center',borderWidth:1}}>
-                  <MaterialCommunityIcons name="food" size={24} color="black" />
-              </View>
-              </TouchableOpacity>
-              
-              
+            <View style={{height:80,width:'100%'}}>
+              <FlatList
+                  horizontal
+                  data={meno.food}
+                  keyExtractor={item=>item.id}
+                  renderItem={this.renderItem}
+                  ref={(ref)=>{this.FlatListRef=ref}}
+              />
             </View>
+            
               <FlatList
                 data={listFood.list}
                 keyExtractor = {item=>item.id}
@@ -159,6 +242,45 @@ class Food extends Component {
                 //ItemSeparatorComponent={this.renderSeparator}
                 ref={(ref)=>{this.FlatListRef=ref}}
               />
+          {this.props.type.type=="Admin"&&
+          <TouchableOpacity
+          activeOpacity={0.7}
+          onPress={()=>{this.setState({showModalOrder:true})}}
+          style={styles.touchableOpacityStyle}>
+          <View style={styles.floatingButtonStyle}>
+          <FontAwesome5 name="clipboard-list" size={24} color="white" />
+          </View>
+        </TouchableOpacity>}
+
+        <Modal transparent={true} visible={this.state.showModalOrder} animationType='slide'>
+          <View style={{backgroundColor:'#00000060',flex:1,justifyContent:'center',alignItems:'center'}}>
+            <View style={{backgroundColor:'white',height:600,width:350,borderRadius:20}}>
+              <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                  <Text style={{fontFamily:'kanitSemiBold',fontSize:20}}>รายการสั่งซื้อ</Text>
+              </View>
+              <View style={{height:1,width:'100%',backgroundColor:'#000000'}}></View>
+              <View style={{flex:6,height:100,width:'100%'}}>
+                
+                  <FlatList
+                      data={this.props.order}
+                      keyExtractor={item=>item.id}
+                      renderItem={this.renderOrder}
+                  />
+                  
+              </View>
+              <View style={{height:1,width:'100%',backgroundColor:'#000000'}}></View>
+              <TouchableOpacity style={{flex:1,justifyContent:'center',alignItems:'center'}} onPress={()=>{this.setState({showModalOrder:false})}}>
+                <View style={{height:60,width:60,borderRadius:100,backgroundColor:'#EF3D3D',justifyContent:'center',alignItems:'center'}}>
+                  <FontAwesome name="close" size={24} color="white" />
+                </View>
+              </TouchableOpacity>
+              
+
+            </View>
+
+          </View>
+
+        </Modal>
     
     </View>
     );
@@ -235,12 +357,65 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.25,
     shadowRadius: 3.84,
+  },
+  touchableOpacityStyle: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 30,
+    bottom: 30,
+  },
+  floatingButtonStyle: {
+    resizeMode: 'contain',
+    width: 60,
+    height: 60,
+    backgroundColor:'#FB7070',
+    borderRadius:50,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
+
+    elevation: 6,
+    justifyContent:'center',
+    alignItems:'center'
+    //backgroundColor:'black'
+  },
+  orderBar:{
+    height:100,
+    width:'100%',
+    backgroundColor:'#C4C4C4',
+    borderRadius:10,
+    shadowColor: "#000",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 1,
+    },
+    shadowOpacity: 0.20,
+    shadowRadius: 1.41,
+
+    elevation: 2,
+
   }
   });
+  const mapDispatchToProps=(dispatch)=>{
+    return{
+      save:(data)=>dispatch(saveOrder(data)),
+      add:(data)=>dispatch(addOrder(data))
+    }
+    
+  }
   const mapStateToProps=(state)=>{
     return{
       type:state.profileReducer.profile,
+      order:state.orderReducer.orderList
     }
   }
 
-export default connect(mapStateToProps)(Food);
+export default connect(mapStateToProps,mapDispatchToProps)(Food);

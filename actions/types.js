@@ -12,3 +12,8 @@ export const SAVE_POST = "SAVE_POST";
 export const ADD_POST = "ADD_POST";
 export const DELETE_POST = "DELETE_POST";
 export const EDIT_POST = "EDIT_POST";
+
+export const SAVE_ORDER = "SAVE_ORDER";
+export const ADD_ORDER = "ADD_ORDER";
+
+

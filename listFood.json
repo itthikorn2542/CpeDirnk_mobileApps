@@ -1,16 +1,16 @@
 {
     "list" : [
-    {"id" :"1", "url":"https://www.siamliq.com/wp-content/uploads/singha.jpg","name":"โปรเบียร์สิงห์ x3","price":"199","type":"beer"},
-    {"id" :"2", "url":"https://brandbuffet.in.th/wp-content/uploads/2016/11/chang-champaign.jpg","name":"โปรเบียร์ช้าง x3","price":"199","type":"beer"},
-    {"id" :"3", "url":"https://brandbuffet.in.th/wp-content/uploads/2016/11/chang-champaign.jpg","name":"เบียร์ช้าง","price":"80","type":"beer"},
-    {"id" :"4", "url":"https://img.hellofresh.com/f_auto,fl_lossy,q_auto,w_1200/hellofresh_s3/image/chilli-prawn-linguine-4e6a5cd0.jpg","name":"กระเพรา","price":"80","type":"food"},
-    {"id" :"5", "url":"https://d3lp4xedbqa8a5.cloudfront.net/s3/digital-cougar-assets/FoodNZ/2019/02/25/33354/linguine-with-garlic-prawns-and-chorizo.jpg?width=768&height=639&mode=crop&quality=75&anchor=middlecenter","name":"ราดหน้า","price":"69","type":"food"},
-    {"id" :"6", "url":"https://waterlibrary.com/wp-content/uploads/2020/03/serving.jpg","name":"เฟรนฟราย","price":"199","type":"ff"},
-    {"id" :"7", "url":"https://www.siamliq.com/wp-content/uploads/singha.jpg","name":"เบียร์สิงห์","price":"199","type":"beer"},
-    {"id" :"8", "url":"https://brandbuffet.in.th/wp-content/uploads/2016/11/chang-champaign.jpg","name":"เบียร์ช้าง","price":"199","type":"beer"},
-    {"id" :"9", "url":"https://img.hellofresh.com/f_auto,fl_lossy,q_auto,w_1200/hellofresh_s3/image/chilli-prawn-linguine-4e6a5cd0.jpg","name":"กระเพรา","price":"80","type":"food"},
-    {"id" :"10", "url":"https://d3lp4xedbqa8a5.cloudfront.net/s3/digital-cougar-assets/FoodNZ/2019/02/25/33354/linguine-with-garlic-prawns-and-chorizo.jpg?width=768&height=639&mode=crop&quality=75&anchor=middlecenter","name":"ราดหน้า","price":"69","type":"food"},
-    {"id" :"11", "url":"https://waterlibrary.com/wp-content/uploads/2020/03/serving.jpg","name":"เฟรนฟราย","price":"199","type":"ff"}
+    {"id" :"1", "url":"https://www.siamliq.com/wp-content/uploads/singha.jpg","name":"โปรเบียร์สิงห์ x3","price":"199","type":"เหล้า-เบียร์"},
+    {"id" :"2", "url":"https://brandbuffet.in.th/wp-content/uploads/2016/11/chang-champaign.jpg","name":"โปรเบียร์ช้าง x3","price":"199","type":""},
+    {"id" :"3", "url":"https://brandbuffet.in.th/wp-content/uploads/2016/11/chang-champaign.jpg","name":"เบียร์ช้าง","price":"80","type":""},
+    {"id" :"4", "url":"https://www.siamliq.com/wp-content/uploads/singha.jpg","name":"เบียร์สิงห์","price":"199","type":""},
+    {"id" :"5", "url":"https://brandbuffet.in.th/wp-content/uploads/2016/11/chang-champaign.jpg","name":"เบียร์ช้าง","price":"199","type":""},
+    {"id" :"6", "url":"https://img.hellofresh.com/f_auto,fl_lossy,q_auto,w_1200/hellofresh_s3/image/chilli-prawn-linguine-4e6a5cd0.jpg","name":"กระเพรา","price":"80","type":"อาหารจารเดียว"},
+    {"id" :"7", "url":"https://d3lp4xedbqa8a5.cloudfront.net/s3/digital-cougar-assets/FoodNZ/2019/02/25/33354/linguine-with-garlic-prawns-and-chorizo.jpg?width=768&height=639&mode=crop&quality=75&anchor=middlecenter","name":"ราดหน้า","price":"69","type":""},
+    {"id" :"8", "url":"https://img.hellofresh.com/f_auto,fl_lossy,q_auto,w_1200/hellofresh_s3/image/chilli-prawn-linguine-4e6a5cd0.jpg","name":"กระเพรา","price":"80","type":""},
+    {"id" :"9", "url":"https://d3lp4xedbqa8a5.cloudfront.net/s3/digital-cougar-assets/FoodNZ/2019/02/25/33354/linguine-with-garlic-prawns-and-chorizo.jpg?width=768&height=639&mode=crop&quality=75&anchor=middlecenter","name":"ราดหน้า","price":"69","type":""},
+    {"id" :"10", "url":"https://waterlibrary.com/wp-content/uploads/2020/03/serving.jpg","name":"เฟรนฟราย","price":"199","type":"อื่นๆ"},
+    {"id" :"11", "url":"https://waterlibrary.com/wp-content/uploads/2020/03/serving.jpg","name":"เฟรนฟราย","price":"199","type":"อื่นๆ"}
     
     
     ]
