@@ -184,7 +184,7 @@ onUpdatePost= async()=>{
         <Card>
             <Card.Title style={{fontFamily:'kanitSemiBold'}} title="CPEขี้เมา" subtitle={moment(item.createdDate.toDate()).fromNow()}
             left={()=>(<Avatar.Image size={50} source={{uri:"https://bit.ly/366c9N6"}}/>)} right={()=>(
-            <View style={{backgroundColor:'white',height:50,width:50,justifyContent:'center',alignItems:'center',marginLeft:30}}>
+            this.props.type.type=="Admin"&&<View style={{backgroundColor:'white',height:50,width:50,justifyContent:'center',alignItems:'center',marginLeft:30}}>
               <TouchableOpacity onPress={()=>{this.setState({showModalOption:true}),this.setState({deleteID:item.id})}}>
                 <SimpleLineIcons name="options-vertical" size={18} color="black" />
               </TouchableOpacity>
