@@ -1,11 +1,13 @@
 import moment from 'moment';
 import React, { Component } from 'react';
 import {
-  View, Text, StyleSheet, Image, FlatList, TouchableOpacity, Modal
+  View, Text, StyleSheet, Image, FlatList, TouchableOpacity, Modal,Alert,ActivityIndicator
 } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { FontAwesome5 } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
+import { connect } from 'react-redux';
+import { saveProfile } from './actions/profile';
 import firestore from './firebase/Firestore'
 
 class FriendList extends Component {
@@ -21,11 +23,61 @@ class FriendList extends Component {
       modalFb: null,
       modalIg: null,
       modalLine: null,
+      Friend: [],
+      member:null,
+      loading: false
+
     };
   }
   async componentDidMount() {
     console.log('getaccountInStore')
+    this.setState({loading:true})
+    await firestore.getFriend(this.props.profile.id, this.getFriendSuccess, this.getUnsuccess);
     await firestore.getAccountByStatus(this.getSuccess, this.getUnsuccess)
+  }
+  // componentWillUnmount() {
+  //   console.log("componentWillUnmount")
+  // }
+  addFriend=async(id)=>{
+    let data={}
+    let members=[]
+    members.push(this.props.profile.id)
+    members.push(id)
+    data.member=members
+    this.setState({member:id})
+    await firestore.addGroup(data,this.addFriendSuccess,this.getUnsuccess)
+    
+  }
+  addFriendSuccess=(docRef)=>{
+    console.log("Add friend Success")
+    this.setState({Friend:this.state.Friend.concat(this.state.member)});
+  }
+  preAddFriend=(id)=>{
+        Alert.alert(
+        "Add Friend",
+        "คุณต้องการเพิ่มเพื่อนใช่หรือไม่",
+        [
+          { text: "OK", onPress: () => this.addFriend(id) }
+        ],
+        { cancelable: false }
+      );
+  }
+  getFriendSuccess = async (querySnapshot) => {
+    console.log('getfriend')
+    if (querySnapshot.docs.length > 0) {
+      var friend = []
+      var myID = this.props.profile.id;
+      querySnapshot.forEach(function (doc) {
+        let friendID = null
+        if (doc.data().member[0] == myID) {
+          friendID = doc.data().member[1];
+        } else {
+          friendID = doc.data().member[0];
+        }
+        friend.push(friendID);
+      });
+      this.setState({ Friend: friend })
+    }
   }
   getSuccess = (querySnapshot) => {
     this.setState({ accountInStore: [] });
@@ -37,6 +89,7 @@ class FriendList extends Component {
     });
     console.log("getaccountInStoreSuccess")
     this.setState({ accountInStore: accounts })
+    this.setState({loading:false})
   }
   getAccountSuccess = (doc) => {
     this.setState({ modalAvatar: doc.data().avatar })
@@ -48,6 +101,7 @@ class FriendList extends Component {
   }
   getUnsuccess = (error) => {
     console.log(error)
+    this.setState({loading:false})
   }
   getModal = async (id) => {
     console.log('get modal')
@@ -57,6 +111,11 @@ class FriendList extends Component {
   }
   setModalVisible = async (visible) => {
     this.setState({ modalVisible: visible });
+  }
+  renderButton() {
+    if (this.state.loading) {
+      return (<ActivityIndicator size='large' color='black' />);
+    } 
   }
   Header = () => {
     return (
@@ -91,11 +150,27 @@ class FriendList extends Component {
                 <Text style={styles.txtcaption} numberOfLines={1}>{item.caption}</Text>
               </View>
             </View>
-            <TouchableOpacity>
+            {(this.props.profile.id==item.id )&&
+              <TouchableOpacity>
+              <View style={styles.addFriend}>
+                <AntDesign name="user" size={26} color="black" />
+              </View>
+              </TouchableOpacity> 
+            }
+            {(this.state.Friend.indexOf(item.id) == -1 && this.props.profile.id!=item.id )&&
+              <TouchableOpacity onPress={()=>{this.preAddFriend(item.id)}}>
               <View style={styles.addFriend}>
                 <AntDesign name="adduser" size={26} color="black" />
               </View>
-            </TouchableOpacity>
+              </TouchableOpacity> 
+            }
+            {(this.state.Friend.indexOf(item.id) != -1 && this.props.profile.id!=item.id )&&
+              <TouchableOpacity>
+              <View style={styles.addFriend}>
+                <AntDesign name="check" size={26} color="black" />
+              </View>
+              </TouchableOpacity> 
+            }
           </View>
         </TouchableOpacity>
       </View>
@@ -160,6 +235,7 @@ class FriendList extends Component {
 
 
         {/* ============= close Modal ================== */}
+        {this.renderButton()}
         <FlatList
           style={{ width: "100%" }}
           data={this.state.accountInStore}
@@ -323,5 +399,16 @@ const styles = StyleSheet.create({
   },
 });
 
+const mapStateToProps = (state) => {
+  return {
+    profile: state.profileReducer.profile
+  }
+}
 
-export default FriendList;
+const mapDispatchToProps = (dispatch) => {
+  return {
+    save: (profile) => dispatch(saveProfile(profile)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(FriendList);
