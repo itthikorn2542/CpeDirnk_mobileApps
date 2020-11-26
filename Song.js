@@ -18,7 +18,8 @@ class Song extends Component {
         name:null,
         singer:null,
         detail:null,
-        song:[]
+        song:[],
+        songID:null
 
     };
   }
@@ -29,11 +30,17 @@ class Song extends Component {
             <View style={{backgroundColor:'#E2E2E2',height:80,width:70,borderRadius:10,margin:10,marginLeft:1,justifyContent:'center',alignItems:'center',marginLeft:10}}>
                 <Image source={{uri:'https://image.flaticon.com/icons/png/512/126/126493.png'}} style={{height:45,width:45}}></Image>
             </View>
-            <View style={{marginTop:5,marginBottom:5}}>
+            <View style={{marginTop:5,marginBottom:5,height:100,width:200}}>
                 <Text style={{color:'black',marginLeft:10,fontSize:20,fontFamily:'kanitSemiBold'}}>{"เพลง: "+item.name}</Text>
                 <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"ศิลปิน: "+item.singer}</Text>
                 <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"เพิ่มเติม: "+item.detail}</Text>
             </View>
+            {this.props.type.type=="Admin"&&<TouchableOpacity>
+              <View style={{height:100,width:100,justifyContent:'center',alignItems:'center'}}>
+                <Entypo name="controller-play" size={50} color="black" />
+            </View>
+            </TouchableOpacity>}
+            
         </View>
       </View>
     );
@@ -66,6 +73,9 @@ class Song extends Component {
       songs=songs.concat(song)
       this.props.add(songs);
       console.log(songs);
+      this.setState({name:null})
+      this.setState({singer:null})
+      this.setState({detail:null})
   
   }
   addUnSuccess=(error)=>{
@@ -99,7 +109,7 @@ class Song extends Component {
             </View>
         </View>
         <View style={{backgroundColor:'black',width:200,height:30,borderRadius:5,marginLeft:20,alignItems:'center',justifyContent:'center'}}>
-          <Text style={{fontFamily:'kanitSemiBold',color:'white'}}>คิวเพลงทั้งหมด 3 เพลง</Text>
+          <Text style={{fontFamily:'kanitSemiBold',color:'white'}}>คิวเพลงทั้งหมด {this.state.song.length} เพลง</Text>
         </View>
 
         <FlatList
@@ -235,6 +245,8 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
 
     elevation: 5,
+    alignItems:'center',
+    justifyContent:'space-evenly'
   }
 
   });

@@ -8,6 +8,9 @@ import { Entypo } from '@expo/vector-icons';
 import * as meno from './meno.json';
 import * as listFood from './listFood.json';
 import {connect} from 'react-redux';
+import { MaterialIcons } from '@expo/vector-icons';
+import { Ionicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 class Food extends Component {
   constructor(props){
     super(props);
@@ -17,7 +20,8 @@ class Food extends Component {
       showModal:false,
       id:1,
       count:1,
-      catagory:""
+      catagory:"",
+      selectedMenu:1
    };
   }
   renderSeparator=()=>{
@@ -25,26 +29,6 @@ class Food extends Component {
       <View style={{height:1,backgroundColor:'black'}}></View>
     );
   }
-  renderItem=({item})=>{
-    let backgroundColor = null;
-    let textcolor = "black";
-    if(this.state.selectedID==item.id){
-      backgroundColor="#FB7070";
-      textcolor = "white";
-    }
-    else{
-      backgroundColor="white"
-    }
-    return(
-      <View style={{marginLeft:20}}>
-        <TouchableOpacity onPress={()=>{this.setState({selectedID:item.id})}} style={{backgroundColor:backgroundColor,borderRadius:5}}>
-        <View style={styles.menuStyle}>
-              <Text style={{margin:5,fontSize:11,color:textcolor,fontFamily:'kanitRegular'}}>{item.name}</Text>
-        </View>
-        </TouchableOpacity>
-      </View>
-    );
-  };
   countMinus=()=>{
     if(this.state.count>1){
       this.setState({count:this.state.count-1})
@@ -129,17 +113,44 @@ class Food extends Component {
 
   render(props) {
     const { navigation } = this.props;
+    let bg = "white"
+    if(this.state.selectedMenu==1){
+      let bg = "#FB7070"
+    }
+    else if(this.state.selectedMenu==2){
+      let bg = "#FB7070"
+    }
+    else if(this.state.selectedMenu==3){
+      let bg = "#FB7070"
+    }
+    else if(this.state.selectedMenu==4){
+      let bg = "#FB7070"
+    }
     return (
       <View style={{flex:1}}>
-            <View style={{height:50,width:'100%'}}>
-              <FlatList
-            horizontal
-            data={meno.food}
-            keyExtractor = {item=>item.id,item=>item.type}
-            renderItem={this.renderItem}
-            ItemSeparatorComponent={this.renderSeparator}
-            ref={(ref)=>{this.FlatListRef=ref}}
-            />
+            <View style={{height:60,width:'100%',justifyContent:'space-evenly',flexDirection:'row',alignItems:'center'}}>
+              <TouchableOpacity >
+                <View style={{height:45,width:45,backgroundColor:'white',borderRadius:100,justifyContent:'center',alignItems:'center',borderWidth:1}}>
+                  <MaterialIcons name="menu" size={24} color="black" />
+              </View>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <View style={{height:45,width:45,backgroundColor:'white',borderRadius:100,justifyContent:'center',alignItems:'center',borderWidth:1}}>
+                  <Ionicons name="ios-beer" size={24} color="black" />
+              </View>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <View style={{height:45,width:45,backgroundColor:'white',borderRadius:100,justifyContent:'center',alignItems:'center',borderWidth:1}}>
+                    <MaterialIcons name="restaurant-menu" size={24} color="black" />
+              </View>
+              </TouchableOpacity>
+              <TouchableOpacity>
+                <View style={{height:45,width:45,backgroundColor:'white',borderRadius:100,justifyContent:'center',alignItems:'center',borderWidth:1}}>
+                  <MaterialCommunityIcons name="food" size={24} color="black" />
+              </View>
+              </TouchableOpacity>
+              
+              
             </View>
               <FlatList
                 data={listFood.list}
