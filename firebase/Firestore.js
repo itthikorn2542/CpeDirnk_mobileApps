@@ -21,6 +21,15 @@ class Firestore {
       console.log('firebase app already running...')
     }
   }
+  addGroup=(data,success,reject)=>{
+    firebase.firestore().collection('Group').add(data)
+    .then(function (docRef) {
+      success(docRef);
+      })
+    .catch(function (error) {
+      reject(error);
+    });
+  }
   getAccountWithID(id, getSuccess, getUnsuccess) {
     let docRef =  firebase.firestore().collection('User').doc(id);
     docRef.get()

@@ -26,8 +26,16 @@ class Profile extends Component {
       fb: this.props.profile.fb,
       ig: this.props.profile.ig,
       line: this.props.profile.line,
-      loading: false
+      loading: false,
+      loadingOut: false
     };
+  }
+  componentDidMount() {
+    this.setState({ loadingOut: false })
+  }
+  componentWillUnmount() {
+    this.setState({ loadingOut: false })
+    console.log("componentWillUnmount logOut")
   }
   onSignOutSuccess = () => {
     console.log('Sign Out Success');
@@ -47,12 +55,12 @@ class Profile extends Component {
       line: this.state.line,
     }
     this.props.save(user);
-    this.setState({loading:false})
+    this.setState({ loading: false })
     this.setState({ modalVisible: false });
   }
   updateAccount = async () => {
     if (this.state.avatar === this.props.profile.avatar) {
-      this.setState({loading:true})
+      this.setState({ loading: true })
       let user = {
         avatar: this.props.profile.avatar,
         name: this.state.name,
@@ -65,7 +73,7 @@ class Profile extends Component {
     }
     else {
       console.log('upload........')
-      this.setState({loading:true})
+      this.setState({ loading: true })
       let keys = Math.random().toString();
       await storage.uploadProfileToFirebase(this.state.avatar, keys, this.uploadSuccess, this.uploadError, this.onUpload);
     }
@@ -90,6 +98,7 @@ class Profile extends Component {
     console.log(error);
   }
   onLogout = () => {
+    this.setState({ loadingOut: true })
     firestore.signOut(this.onSignOutSuccess, this.onReject);
   }
   setModalVisible = (visible) => {
@@ -114,19 +123,49 @@ class Profile extends Component {
       this.setState({ avatar: result.uri });
     }
   }
+  renderButtonOut() {
+    if (this.state.loadingOut) {
+      return (<ActivityIndicator size='large' color='black' />);
+    }
+    else {
+      return (
+        <View style={{ flexDirection: 'column', flex: 1, justifyContent: 'space-evenly', alignItems: 'center' }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <MaterialIcons name="description" size={28} color="black" />
+            <Text style={styles.txtDescription}>  {this.props.profile.caption}</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <AntDesign name="facebook-square" size={24} color="black" />
+            <Text style={styles.txtDescription}>  {this.props.profile.fb}</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <AntDesign name="instagram" size={24} color="black" />
+            <Text style={styles.txtDescription}>   {this.props.profile.ig}</Text>
+          </View>
+
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+            <FontAwesome5 name="line" size={24} color="black" />
+            <Text style={styles.txtDescription}>   {this.props.profile.line}</Text>
+          </View>
+        </View>
+      )
+    }
+  }
   renderButton() {
     if (this.state.loading) {
       return (<ActivityIndicator size='large' color='black' />);
-    } 
+    }
     else {
       return (<View style={styles.modalMid}>
-                <View style={styles.modalMidLeft}>
-                  <Feather name="user" size={24} color="black" />
-                </View>
-                <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value={this.state.name} onChangeText={(text) => this.setState({ name: text })}></TextInput>
-                </View>
-              </View>);
+        <View style={styles.modalMidLeft}>
+          <Feather name="user" size={24} color="black" />
+        </View>
+        <View style={styles.modalMidRight}>
+          <TextInput style={styles.textInput} value={this.state.name} onChangeText={(text) => this.setState({ name: text })}></TextInput>
+        </View>
+      </View>);
     }
   }
   render(props) {
@@ -222,42 +261,25 @@ class Profile extends Component {
         </View>
         <View style={styles.mid}>
           <Text style={styles.name}>{this.props.profile.name}</Text>
-          <View style={{ flexDirection: 'column', flex: 1, justifyContent: 'space-evenly', alignItems: 'center' }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <MaterialIcons name="description" size={28} color="black" />
-              <Text style={styles.txtDescription}>  {this.props.profile.caption}</Text>
-            </View>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <AntDesign name="facebook-square" size={24} color="black" />
-              <Text style={styles.txtDescription}>  {this.props.profile.fb}</Text>
-            </View>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <AntDesign name="instagram" size={24} color="black" />
-              <Text style={styles.txtDescription}>   {this.props.profile.ig}</Text>
-            </View>
-
-            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-              <FontAwesome5 name="line" size={24} color="black" />
-              <Text style={styles.txtDescription}>   {this.props.profile.line}</Text>
-            </View>
-          </View>
+          {this.renderButtonOut()}
         </View>
         <View style={styles.footer}>
-          <TouchableOpacity onPress={() => { this.setModalVisible(true); }}>
-            <View style={styles.editProfile}>
-              <AntDesign name="setting" size={24} color="black" />
-              <Text style={{ fontSize: 16, fontFamily: 'kanitLight' }}> ตั้งค่าโปรไฟล์</Text>
-            </View>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={this.onLogout}>
-            <View style={styles.logOut}>
-              <Ionicons name="ios-log-out" size={24} color="white" />
-              <Text style={{ fontSize: 16, color: 'white', fontFamily: 'kanitLight' }}> ออกจากระบบ</Text>
-            </View>
-          </TouchableOpacity>
+          <View >
+            <TouchableOpacity onPress={() => { this.setModalVisible(true); }}>
+              <View style={styles.editProfile}>
+                <AntDesign name="setting" size={24} color="black" />
+                <Text style={{ fontSize: 16, fontFamily: 'kanitLight' }}> ตั้งค่าโปรไฟล์</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+          <View>
+            <TouchableOpacity onPress={this.onLogout}>
+              <View style={styles.logOut}>
+                <Ionicons name="ios-log-out" size={24} color="white" />
+                <Text style={{ fontSize: 16, color: 'white', fontFamily: 'kanitLight' }}> ออกจากระบบ</Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </View>
 
       </View>
@@ -279,7 +301,7 @@ const styles = StyleSheet.create({
   footer: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-around'
+    justifyContent: 'space-around',
   },
   profile: {
     width: 150,
