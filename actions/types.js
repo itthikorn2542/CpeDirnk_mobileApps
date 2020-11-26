@@ -4,3 +4,5 @@ export const ADD_SONG = "ADD_SONG";
 export const SAVE_POST = "SAVE_POST";
 export const SAVE_SONG = "SAVE_SONG";
 export const ADD_POST = "ADD_POST";
+export const DELETE_POST = "DELETE_POST";
+export const EDIT_POST = "EDIT_POST";

@@ -213,7 +213,33 @@ class Firestore {
     .catch(function(error){
         reject(error);
     });
+
+    
   };
+  deletePostByID=(id,success,reject)=>{
+    firebase.firestore().collection('Post')
+    .doc(id)
+    .delete()
+    .then(function(){
+      success(null)
+    })
+    .catch(function(error){
+      reject(error)
+    });
+  };
+  updatePostByID = (post,success,reject)=>{
+    firebase.firestore().collection('Post')
+    .doc(post.id)
+    .update({
+      caption:post.caption,
+    })
+    .then(function(){
+      success(null)
+    })
+    .catch(function(error){
+      reject(error)
+    });
+  }
 //////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
   

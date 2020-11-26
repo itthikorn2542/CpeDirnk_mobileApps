@@ -52,7 +52,7 @@ class Song extends Component {
       songs = songs.concat(song)
     })
     this.props.save(songs);
-    console.log(songs)
+    this.setState({song:songs})
   }
   addSuccess=(docRef)=>{
     this.setState({showModal:false});
@@ -108,14 +108,14 @@ class Song extends Component {
             renderItem={this.renderItem}
             ref={(ref)=>{this.FlatListRef=ref}}
         />
-        <TouchableOpacity
+        {this.props.type.type!=="Admin"&&<TouchableOpacity
           activeOpacity={0.7}
           onPress={()=>{this.setState({showModal:true})}}
           style={styles.touchableOpacityStyle}>
           <View style={styles.floatingButtonStyle}>
                 <Entypo  name="plus" size={24} color="white" />
           </View>
-        </TouchableOpacity>
+        </TouchableOpacity>}
 
         <Modal 
                     transparent={true} 
@@ -248,7 +248,8 @@ const styles = StyleSheet.create({
   
   const mapStateToProps=(state)=>{
     return{
-      todos:state.songReducer.songList
+      todos:state.songReducer.songList,
+      type:state.profileReducer.profile
     }
   }
 export default connect(mapStateToProps,mapDispatchToProps)(Song);

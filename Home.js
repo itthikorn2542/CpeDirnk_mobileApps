@@ -3,36 +3,36 @@ import {
   View,Text,StyleSheet,FlatList,Image,TouchableOpacity, Modal,TextInput
 } from 'react-native';
 import Constants from 'expo-constants';
-import {createStackNavigator} from '@react-navigation/stack' 
-import {NavigationContainer,useNavigation } from '@react-navigation/native'
-import {createBottomTabNavigator} from '@react-navigation/bottom-tabs'
-import { FontAwesome5 } from '@expo/vector-icons';
-import { Entypo } from '@expo/vector-icons';
 import {Card,Avatar,Title,Paragraph} from 'react-native-paper';
 import { Ionicons } from '@expo/vector-icons';
 import { SimpleLineIcons } from '@expo/vector-icons';
 import * as ImagePicker from 'expo-image-picker';
-import * as data from './data.json';
-import {savePost,addPost} from './actions/actionPost'
+import {savePost,addPost, deletePost,editPost} from './actions/actionPost'
 import {connect} from 'react-redux';
 import firestore from './firebase/Firestore'
 import storage from './firebase/Storage';
 import moment from 'moment';
 import { AntDesign } from '@expo/vector-icons';
 
-
 class Home extends Component {
   constructor(props){
+
+    
+
     super(props);
      this.state = {
-      showModal:false,
-      showModal2:false,
+      showModalPost:false,
+      showModalOption:false,
+      showModalEdit:false,
       img:null,
       caption:"",
       linkImage:null,
       type:"txt",
       timeDate:null,
-      id:null
+      id:null,
+      post:[],
+      deleteID:null,
+      editID:null
 
     };
   }
@@ -73,7 +73,7 @@ getPostSuccess=(doc)=>{
     let post = doc.data();
     post.id  = doc.id
     this.props.add(post)
-    this.setState({showModal:false});
+    this.setState({showModalPost:false});
     this.setState({img:null});
     this.setState({linkImage:null})
 }
@@ -111,7 +111,7 @@ uploadError=(error)=>{
   ////////////////////////////////////////////////////////////////////////////////////////////////////
   ///////////////////////////////////////////////////////////////////////////////////////////////////
   AddPost = async()=>{
-    this.setState({showModal:false});
+    this.setState({showModalPost:false});
     
     if(this.state.img!=null){
       
@@ -131,16 +131,61 @@ uploadError=(error)=>{
     }
       
   }
-  
-
+//////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////DELETE POST BY ID FROM FIREBASE//////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+deleteSuccess=()=>{
+  let post = {
+    id:this.state.deleteID
+  }
+  this.props.del(post)
+  console.log("deleted....id>>"+this.state.deleteID)
+}
+deleteUnSuccess=(error)=>{
+  console.log(error)
+}
+onDeletePost= async()=>{
+  let id = this.state.deleteID;
+  await firestore.deletePostByID(id,this.deleteSuccess,this.deleteUnSuccess);
+}
+//////////////////////////////////////////////////////////////////////////////////////////////
+//////////////////////////////EDIT POST BY ID FROM FIREBASE////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
+updateSuccess=()=>{
+  let post = {
+    caption:this.state.caption,
+    id:this.state.editID
+  }
+  this.props.edit(post)
+  console.log("edit....id>>"+this.state.editID)
+  this.setState({img:null});
+  this.setState({linkImage:null});
+  this.setState({caption:null});
+  this.setState({type:"txt"});
+}
+updateUnSuccess=(error)=>{
+  console.log("this is error of update");
+  console.log(error)
+}
+onUpdatePost= async()=>{
+  this.setState({showModalEdit:false})
+    let post = {
+      caption:this.state.caption,
+      id:this.state.editID,
+    }
+    await firestore.updatePostByID(post,this.updateSuccess,this.updateUnSuccess)
+}
+//////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////
   renderItem=({item})=>{
     return(
       <View style={{padding:8}}>
         <Card>
             <Card.Title style={{fontFamily:'kanitSemiBold'}} title="CPEขี้เมา" subtitle={moment(item.createdDate.toDate()).fromNow()}
-            left={()=>(<Avatar.Image size={50} source={{uri:this.props.type.avatar}}/>)} right={()=>(
+            left={()=>(<Avatar.Image size={50} source={{uri:"https://bit.ly/366c9N6"}}/>)} right={()=>(
             <View style={{backgroundColor:'white',height:50,width:50,justifyContent:'center',alignItems:'center',marginLeft:30}}>
-              <TouchableOpacity onPress={()=>{this.setState({showModal2:true})}}>
+              <TouchableOpacity onPress={()=>{this.setState({showModalOption:true}),this.setState({deleteID:item.id})}}>
                 <SimpleLineIcons name="options-vertical" size={18} color="black" />
               </TouchableOpacity>
             </View>
@@ -151,6 +196,101 @@ uploadError=(error)=>{
             </Card.Content>
             {item.type=="img"&&<Card.Cover source={{uri:item.linkImage}}/>}
           </Card>
+
+{/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////MODAL OPTION POST//////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
+          {this.state.deleteID==item.id&&<Modal transparent={true} visible={this.state.showModalOption} animationType="slide">
+            <View  style={{justifyContent:'flex-end',paddingTop:Constants.statusBarHeight,flex:1}}>
+                <View style={{backgroundColor:'#000000',height:250,width:'100%'}} >
+                  <TouchableOpacity style={{flex:1,alignItems:'center',justifyContent:'center'}} onPress={()=>{this.setState({showModalOption:false})}}>
+                    <View >
+                      <AntDesign name="caretdown" size={24} color="white" />
+                    </View>
+                  </TouchableOpacity>
+                    
+                    <View style={{flex:2,justifyContent:'space-between',alignItems:'center'}}>
+                      <View style={{height:1,width:'100%',backgroundColor:'white'}}></View>
+
+                      <TouchableOpacity onPress={()=>{
+                      this.setState({showModalEdit:true}),
+                      this.setState({editID:item.id}),
+                      this.setState({showModalOption:false}),
+                      this.setState({type:item.type}),
+                      this.setState({timeDate:item.createdDate}),
+                      this.setState({linkImage:item.linkImage}),
+                      this.setState({caption:item.caption})}} style={{height:30,width:'100%'}}>
+                        <View style={{justifyContent:'center',alignItems:'center',}}>
+                            <Text style={{fontSize:20,fontFamily:'kanitRegular',color:'white'}}>แก้ไขโพสต์</Text>
+                        </View>
+                      </TouchableOpacity>
+              
+                        <View style={{height:1,width:'100%',backgroundColor:'white'}}></View>
+                      <TouchableOpacity onPress={this.onDeletePost} style={{height:30,width:'100%'}}>
+                        <View style={{justifyContent:'center',alignItems:'center',}}>
+                            <Text style={{fontSize:20,fontFamily:'kanitRegular',color:'white'}}>ลบโพสต์</Text>
+                        </View>
+                      </TouchableOpacity>
+                        
+                        <View style={{height:1,width:'100%',backgroundColor:'white'}}></View>
+                    </View>
+                    <View style={{flex:1}}/>
+                </View>
+            </View>
+      </Modal>}
+      {/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////MODAL EDIT POST//////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
+
+      {this.state.editID==item.id&&<Modal transparent={true} visible={this.state.showModalEdit} animationType="slide">
+            <View  style={{backgroundColor:'#00000060',justifyContent:'center',alignItems:'center',paddingTop:Constants.statusBarHeight,flex:1}}>
+                <View style={{backgroundColor:'white',borderRadius:10,height:800,width:400}}>
+                    <View style={{flex:1,justifyContent:'center',flexDirection:'row'}}>
+                      <TouchableOpacity style={{justifyContent:'center'}} onPress={()=>{this.setState({showModalEdit:false}),this.setState({picture:null})}}>
+                        <View >
+                          <Ionicons style={{marginLeft:10}} name="md-arrow-round-back" size={24} color="black" />
+                        </View>
+                      </TouchableOpacity>
+                      
+                      <View style={{flex:1,justifyContent:'center'}}>
+                        <Text style={{marginLeft:10,fontSize:20,fontFamily: 'kanitSemiBold'}}>การแก้ไข</Text>
+                      </View>
+                      <TouchableOpacity onPress={this.onUpdatePost}>
+                         <View style={{flex:1,justifyContent:'center',alignItems:'flex-end'}}>
+                            <Text style={{marginRight:10,fontSize:20,fontFamily: 'kanitSemiBold',color:'#6F0CEE'}}>บันทึก</Text>
+                        </View>
+                      </TouchableOpacity>
+                     
+                    </View>
+                    <View style={{height:1,backgroundColor:'#00000060'}}></View>
+                    <View style={{flex:10}}>
+                      <View style={{flex:1,flexDirection:'row',alignItems:'center'}}>
+                            <Image style={{height:50,width:50,borderRadius:50,marginLeft:10}} 
+                                   source={{uri:this.props.type.avatar}}></Image>
+                            <Text style={{marginLeft:10,fontSize:20,fontFamily:'kanitRegular'}}>CPEขี้เมา</Text>
+                      </View>
+                      <View style={{flex:10}}>
+                        <View style={{flex:1,margin:10,}}>
+                          <TextInput onChangeText={(txt)=>{this.setState({caption:txt})}} multiline={true}  value={this.state.caption} style={{marginLeft:10,fontSize:18,width:'96%',fontFamily:'kanitRegular'}}></TextInput>
+                          {item.linkImage!=null&&<Image style={{flex:1,marginTop:5,resizeMode:'cover'}} source={{uri:item.linkImage}}></Image>}
+                        </View>
+                        
+                      </View>
+
+                    </View>
+                </View>
+            </View>
+        </Modal>}
+{/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////// */}
+
       </View>
     );
   };
@@ -158,23 +298,24 @@ uploadError=(error)=>{
   
   render(props) {
     const { navigation } = this.props;
+    
     return (
       <View style={{flex:1}}>
         {/* <Text>kjcflkbcgk</Text> */}
         {this.props.type.type=="Admin"&&<View style={styles.postStatus}>
             <Image style={{height:50,width:50,borderRadius:50}} 
-                   source={{uri:'https://scontent.fbkk23-1.fna.fbcdn.net/v/t1.0-9/106120566_3049250375195115_1160308528193104189_o.jpg?_nc_cat=110&ccb=2&_nc_sid=09cbfe&_nc_eui2=AeFfLRFY8nsWPzaRCcMLitqYCLpinoXybFQIumKehfJsVP2YpNPfwK62kJ6zo5ChZO3UhLo3G1QN7X602rBhM-Fk&_nc_ohc=Rvmxq3WtlJgAX_ojFDr&_nc_ht=scontent.fbkk23-1.fna&oh=323ca4fb7b67911d8d2e4912768faced&oe=5FE00DA1'}}></Image>
-            <TouchableOpacity style={{width:'80%'}} onPress={()=>{this.setState({showModal:true})}}>
+                   source={{uri:this.props.type.avatar}}></Image>
+            <TouchableOpacity style={{width:'80%'}} onPress={()=>{this.setState({showModalPost:true})}}>
               <View style={{backgroundColor:'#E1E1E1',height:40,borderRadius:40,justifyContent:'center'}}>
-                <Text style={{marginLeft:10,fontFamily:'kanitRegular'}}>บอกความรู้สึกของคุณ</Text>
+                <Text style={{marginLeft:10,fontFamily:'kanitRegular'}}>ประกาศให้ลูกค้ารู้</Text>
               </View>
     </TouchableOpacity>  
         </View>}
-        <Modal transparent={true} visible={this.state.showModal} animationType="slide">
+        <Modal transparent={true} visible={this.state.showModalPost} animationType="slide">
             <View  style={{backgroundColor:'#00000060',justifyContent:'center',alignItems:'center',paddingTop:Constants.statusBarHeight,flex:1}}>
-                <View style={{backgroundColor:'white',borderRadius:10,height:800,width:400}}>
+                <View style={{backgroundColor:'white',borderRadius:10,height:700,width:400}}>
                     <View style={{flex:1,justifyContent:'center',flexDirection:'row'}}>
-                      <TouchableOpacity style={{justifyContent:'center'}} onPress={()=>{this.setState({showModal:false}),this.setState({picture:null})}}>
+                      <TouchableOpacity style={{justifyContent:'center'}} onPress={()=>{this.setState({showModalPost:false}),this.setState({picture:null})}}>
                         <View >
                           <Ionicons style={{marginLeft:10}} name="md-arrow-round-back" size={24} color="black" />
                         </View>
@@ -199,7 +340,7 @@ uploadError=(error)=>{
                       </View>
                       <View style={{flex:10}}>
                         <View style={{flex:1,margin:10,}}>
-                          <TextInput onChangeText={(txt)=>{this.setState({caption:txt})}} multiline={true} placeholder="บอกความรู้สึกของคุณ..." style={{marginLeft:10,fontSize:18,width:'96%',fontFamily:'kanitRegular'}}></TextInput>
+                          <TextInput onChangeText={(txt)=>{this.setState({caption:txt})}} multiline={true} placeholder="บอกอะไรให้ลูกค้าทราบ..." style={{marginLeft:10,fontSize:18,width:'96%',fontFamily:'kanitRegular'}}></TextInput>
                           {this.state.img!=null&&<Image style={{flex:1,marginTop:5,resizeMode:'cover'}} source={{uri:this.state.img}}></Image>}
                         </View>
                         <View style={{flex:1}}>
@@ -221,44 +362,13 @@ uploadError=(error)=>{
         </Modal>
 
 
-      <Modal transparent={true} visible={this.state.showModal2}>
-            <View  style={{backgroundColor:'#00000060',justifyContent:'flex-end',paddingTop:Constants.statusBarHeight,flex:1}}>
-                <View style={{backgroundColor:'white',height:250,width:'100%'}} animationType="slide">
-                  <TouchableOpacity style={{flex:1,alignItems:'center',justifyContent:'center'}} onPress={()=>{this.setState({showModal2:false})}}>
-                    <View >
-                      <AntDesign name="caretdown" size={24} color="black" />
-                    </View>
-                  </TouchableOpacity>
-                    
-                    <View style={{flex:2,justifyContent:'space-between',alignItems:'center'}}>
-                      <View style={{height:1,width:'100%',backgroundColor:'black'}}></View>
-
-                      <TouchableOpacity>
-                        <View style={{justifyContent:'center',alignItems:'center'}}>
-                            <Text style={{fontSize:20,fontFamily:'kanitRegular'}}>แก้ไขโพสต์</Text>
-                        </View>
-                      </TouchableOpacity>
-              
-                        <View style={{height:1,width:'100%',backgroundColor:'black'}}></View>
-                      <TouchableOpacity>
-                        <View>
-                            <Text style={{fontSize:20,fontFamily:'kanitRegular'}}>ลบโพสต์</Text>
-                        </View>
-                      </TouchableOpacity>
-                        
-                        <View style={{height:1,width:'100%',backgroundColor:'black'}}></View>
-                    </View>
-                    <View style={{flex:1}}/>
-                </View>
-            </View>
-      </Modal>
+      
 
       <FlatList
         data={this.props.post}
         keyExtractor = {item=>item.id}
         renderItem={this.renderItem}
         ref={(ref) => { this.flatListRef = ref; }}
-        onContentSizeChange={() => this.flatListRef.scrollToEnd()}
     />
     </View>
     );
@@ -320,6 +430,8 @@ const styles = StyleSheet.create({
     return{
       save:(caption,type)=>dispatch(savePost(caption,type)),
       add:(caption,type)=>dispatch(addPost(caption,type)),
+      del:(data)=>dispatch(deletePost(data)),
+      edit:(data)=>dispatch(editPost(data))
     }
   }
   
