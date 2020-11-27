@@ -190,9 +190,9 @@ onUpdatePost= async()=>{
            
             )}/>
             <Card.Content>
-            <Paragraph ><Text style={{fontFamily:'kanitRegular',fontSize:18,marginTop:10}}>{item.caption}</Text></Paragraph>
+            <Paragraph ><Text style={{fontFamily:'kanitRegular',fontSize:18,margin:20}}>{item.caption}</Text></Paragraph>
             </Card.Content>
-            {item.type=="img"&&<Card.Cover source={{uri:item.linkImage}}/>}
+            {item.type=="img"&&<Card.Cover style={{margin:20}}source={{uri:item.linkImage}} />}
           </Card>
 
 {/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

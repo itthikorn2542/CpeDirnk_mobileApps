@@ -52,11 +52,44 @@ class FriendList extends Component {
     console.log("Add friend Success")
     this.setState({Friend:this.state.Friend.concat(this.state.member)});
   }
+  DeleteUser=async()=>{
+    this.setState({loading:true})
+    console.log("updateStatusByID1")
+    let count=this.state.accountInStore.length
+    for(let i=0;i<count;i++){
+      await firestore.updateStatusByID(this.state.accountInStore[i].id,this.DeleteSuccess,this.getUnsuccess)
+    }
+    this.setState({loading:false})
+    this.setState({accountInStore:[]})
+  }
+  DeleteSuccess=()=>{
+    console.log("UpdateSuccess")
+  }
+  checkDeleteUser=()=>{
+    Alert.alert(
+      "Delete User",
+      "คุณต้องการลบลูกค้าออกจากร้านใช่หรือใช่หรือไม่",
+      [
+        {
+          text: "Cancel",
+          onPress: () => console.log("Cancel Pressed"),
+          style: "cancel"
+        },
+        { text: "OK", onPress: () => this.DeleteUser() }
+      ],
+      { cancelable: false }
+    );
+  }
   preAddFriend=(id)=>{
         Alert.alert(
         "Add Friend",
         "คุณต้องการเพิ่มเพื่อนใช่หรือไม่",
         [
+          {
+            text: "Cancel",
+            onPress: () => console.log("Cancel Pressed"),
+            style: "cancel"
+          },
           { text: "OK", onPress: () => this.addFriend(id) }
         ],
         { cancelable: false }
@@ -243,6 +276,14 @@ class FriendList extends Component {
           keyExtractor={item => item.id}
           ItemSeparatorComponent={this.renderSeparator}
         />
+        {this.props.profile.type!=="Admin"&&<TouchableOpacity
+          //activeOpacity={0.7}
+          onPress={this.checkDeleteUser}
+          style={styles.touchableOpacityStyle}>
+          <View style={styles.floatingButtonStyle}>
+          <AntDesign name="delete" size={30} color="white" />
+          </View>
+        </TouchableOpacity>}
       </View>
     );
   }
@@ -327,10 +368,34 @@ const styles = StyleSheet.create({
     shadowRadius: 10.32,
     elevation: 16,
   },
+  touchableOpacityStyle: {
+    position: 'absolute',
+    width: 60,
+    height: 60,
+    alignItems: 'center',
+    justifyContent: 'center',
+    right: 40,
+    bottom: 60,
+  },
+  floatingButtonStyle: {
+    resizeMode: 'contain',
+    width: 60,
+    height: 60,
+    backgroundColor:'#FB7070',
+    borderRadius:50,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 3,
+    },
+    shadowOpacity: 0.27,
+    shadowRadius: 4.65,
 
-
-
-
+    elevation: 6,
+    justifyContent:'center',
+    alignItems:'center'
+    //backgroundColor:'black'
+  },
   centeredView: {
     flex: 1,
     justifyContent: "center",

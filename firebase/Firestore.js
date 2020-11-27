@@ -30,6 +30,22 @@ class Firestore {
       reject(error);
     });
   }
+  ////////////////////////////////////
+  updateStatusByID=(id,success,reject)=>{
+    console.log('updateStatusByID1 st')
+    firebase.firestore().collection('User')
+    .doc(id)
+    .update({
+      status:"0"
+    })
+    .then(function(){
+      success(null);
+    })
+    .catch(function(error){
+      reject(error)
+    });
+  }
+  ///////////////////////////////////////////
   getAccountWithID(id, getSuccess, getUnsuccess) {
     let docRef =  firebase.firestore().collection('User').doc(id);
     docRef.get()
