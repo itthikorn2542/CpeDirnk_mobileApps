@@ -64,6 +64,7 @@ class Home extends Component {
     this.props.save(posts)
     //console.log(this.props.post)
     //console.log(posts)
+    this.refresh2()
   }
   addUnSuccess=(error)=>{
     console.log(error);
@@ -302,7 +303,7 @@ onUpdatePost= async()=>{
   }
   refresh=()=>{
     this.setState({refreshing:true})
-    this.refresh2()
+    firestore.getAllPost(this.success,this.addUnSuccess);
   }
   render(props) {
     const { navigation } = this.props;
