@@ -62,7 +62,7 @@ class Song extends Component {
               this.setState({singer:item.singer}),
               this.setState({detail:item.detail})
               }}>
-              <View style={{height:100,width:50,justifyContent:'center',alignItems:'center'}}>
+              <View style={{height:100,width:50,justifyContent:'center',alignItems:'flex-end'}}>
                 <Entypo name="controller-play" size={50} color="black" />
             </View>
             </TouchableOpacity>}
@@ -171,14 +171,14 @@ class Song extends Component {
             renderItem={this.renderItem}
             ref={(ref)=>{this.FlatListRef=ref}}
         />
-        {this.props.type.type!=="Admin"&&<TouchableOpacity
+        <TouchableOpacity
           activeOpacity={0.7}
           onPress={()=>{this.setState({showModal:true})}}
           style={styles.touchableOpacityStyle}>
           <View style={styles.floatingButtonStyle}>
                 <Entypo  name="plus" size={24} color="white" />
           </View>
-        </TouchableOpacity>}
+        </TouchableOpacity>
 
         <Modal 
                     transparent={true} 
