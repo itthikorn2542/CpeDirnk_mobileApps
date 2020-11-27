@@ -288,7 +288,7 @@ updatePostByID=(post,success,reject)=>{
   .doc(post.id)
   .update({
     caption:post.caption,
-    
+
   })
   .then(function(){
     success(null);

@@ -21,7 +21,7 @@ const songReducer=(state=intialState,action)=>{
         console.log(" DELETE_SONG22222222")
       return{
         ...state,
-        songList:state.songList.filter((item)=>item.songID!==action.id)
+        songList:state.songList.filter((item)=>item.id!==action.data.id)
       }
       case EDIT_SONG:
       return{

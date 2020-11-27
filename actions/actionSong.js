@@ -8,9 +8,9 @@ export const saveSong=(data)=>({
     type:SAVE_SONG,
     data:data
 });
-export const deletedSong=(id)=>({
+export const deletedSong=(data)=>({
     type:DELETE_SONG,
-    id:id
+    data:data
 });
 
 export const editSong=(data)=>({

@@ -30,6 +30,7 @@ class Food extends Component {
       order:[],
       name:null,
       price:null,
+      refreshing:false
    };
   }
 
@@ -198,32 +199,18 @@ renderOrder=({item})=>{
   
 }
 componentDidMount=async()=>{
-  await firestore.listeningFood(this.listeningSuccess,this.unsuccess)
   await firestore.getAllFood(this.success,this.reject)
 }
-listeningSuccess=(foods,type)=>{
-  console.log("listeningSuccess message")
-  let food=[]
-  console.log(type)
-  if(type==="added"){
-    foods.forEach(function(data){
-        let s=data
-        // mes.createdDate=new Date(data.createdDate);
-        food.push(s)
-    })
-    this.props.add(food)
-  }
-  if(type==="removed"){
-    console.log("songgggggg remove")
-    console.log(foods.doc.id)
-    this.props.del(foods.doc.id)
-  }
-  console.log("storeee")
-  console.log(this.props.todos)
-    
- 
+success = (querySnapshot) => {
+  //console.log(querySnapshot)
 
-
+  var foods = []
+  querySnapshot.forEach(function(doc){ 
+    let food = doc.data()
+    food.id  = doc.id
+    foods = foods.concat(food)
+  })
+  this.props.save(foods)
 }
 unsuccess=(error)=>{
     console.log(error)
@@ -244,18 +231,18 @@ reject=(error)=>{
 }
 orderSuccess=(docRef)=>{
   this.setState({showModal:false});
-  // let foods=[];
-  //   let food={
-  //       id:docRef.id,
-  //       name:this.state.name,
-  //       price:this.state.price*this.state.count,
-  //       table:this.props.type.caption,
-  //       amount:this.state.count
-  //   }
-  //   foods=foods.concat(food)
-  //   this.props.add(foods);
-    //console.log("++++++++++++++++++++++++++++++++++++++")
-    //console.log(foods);
+  let foods=[];
+    let food={
+        id:docRef.id,
+        name:this.state.name,
+        price:this.state.price*this.state.count,
+        table:this.props.type.caption,
+        amount:this.state.count
+    }
+    foods=foods.concat(food)
+    this.props.add(foods);
+    console.log("++++++++++++++++++++++++++++++++++++++")
+    console.log(foods);
     this.setState({name:null})
     this.setState({price:null})
     this.setState({count:1})
@@ -268,6 +255,16 @@ onOrder= async()=>{
     amount:this.state.count
   }
   await firestore.addOrderFood(food,this.orderSuccess,this.reject)
+}
+
+
+onRefreshFalse=()=>{
+  this.setState({refreshing:false})
+}
+onRefreshTrue=async()=>{
+  this.setState({refreshing:true})
+  await firestore.getAllFood(this.success,this.reject)
+  this.onRefreshFalse();
 }
   render(props) {
     
@@ -316,6 +313,8 @@ onOrder= async()=>{
                       data={this.props.order}
                       keyExtractor={item=>item.id}
                       renderItem={this.renderOrder}
+                      refreshing={this.state.refreshing}
+                      onRefresh={this.onRefreshTrue}
                   />
                   
               </View>

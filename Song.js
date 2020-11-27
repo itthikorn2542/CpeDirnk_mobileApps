@@ -20,6 +20,7 @@ class Song extends Component {
         songs:[],
         songID:null,
         popup:false,
+        refreshing:false,
 
     };
   }
@@ -27,6 +28,10 @@ class Song extends Component {
   
   deleteSongSuccess=()=>{
     console.log("delete Success...")
+    let id = {
+      id:this.state.songID
+    }
+    this.props.del(id)
   }
   deleteSongUnsuccess=(error)=>{
       console.log(error)
@@ -41,7 +46,7 @@ class Song extends Component {
       <View style={{margin:10}}>
         {this.props.type.type=="Admin"?<TouchableOpacity onPress={()=>{
                           this.setState({popup:true}),
-                          this.setState({songID:item.songID}),
+                          this.setState({songID:item.id}),
                           this.setState({name:item.name}),
                           this.setState({singer:item.singer}),
                           this.setState({detail:item.detail})
@@ -74,7 +79,7 @@ class Song extends Component {
 
 
 
-        {this.state.songID==item.songID&&<Modal transparent={true} visible={this.state.popup} animationType='fade'>
+        {this.state.songID==item.id&&<Modal transparent={true} visible={this.state.popup} animationType='fade'>
               <View style={{flex:1,backgroundColor:'#00000060',justifyContent:'center',alignItems:'center'}}>
                   <View style={{backgroundColor:'white',height:200,width:350,borderRadius:30,justifyContent:'space-evenly'}}>
                       <View style={{height:100,width:'100%',flex:2,justifyContent:'center',alignItems:'center'}}>
@@ -109,39 +114,35 @@ class Song extends Component {
   //////////////////////////////////////////////////////////////////////////////////
   componentDidMount=async()=>{
 
-    await firestore.listeningSong(this.listeningSuccess,this.unsuccess)
+    await firestore.getAllSong(this.success,this.unsuccess)
   }
   //////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////
-  listeningSuccess=(songs,type)=>{
-    console.log("listeningSuccess message")
-    let song=[]
-    console.log(type)
-    if(type==="added"){
-      songs.forEach(function(data){
-          let s=data
-          // mes.createdDate=new Date(data.createdDate);
-          song.push(s)
-      })
-      this.props.add(song)
-    }
-    if(type==="removed"){
-      console.log("songgggggg remove")
-      console.log(songs.doc.id)
-      this.props.del(songs.doc.id)
-    }
-    console.log("storeee")
-    console.log(this.props.todos)
-      
-   
-
-
+  success = (querySnapshot) => {
+    //console.log(querySnapshot)
+  
+    var songs = []
+    querySnapshot.forEach(function(doc){ 
+      let song = doc.data()
+      song.id  = doc.id
+      songs = songs.concat(song)
+    })
+    this.props.save(songs)
   }
   unsuccess=(error)=>{
       console.log(error)
   }
   addSuccess=(docRef)=>{
     this.setState({showModal:false});
+    let songs=[];
+    let song={
+        id:docRef.id,
+        name:this.state.name,
+        singer:this.state.singer,
+        detail:this.state.detail,
+    }
+    songs=songs.concat(song)
+    this.props.add(songs);
     this.setState({name:'-'})
     this.setState({singer:'-'})
     this.setState({detail:'-'})
@@ -166,8 +167,14 @@ class Song extends Component {
       
       
   }
-
-
+onRefresh2=()=>{
+    this.setState({refreshing:false})
+  }
+onRefresh=()=>{
+  this.setState({refreshing:true})
+  firestore.getAllSong(this.success,this.unsuccess)
+  this.onRefresh2()
+}
   render(props) {
     const { navigation } = this.props;
     return (
@@ -181,6 +188,8 @@ class Song extends Component {
             data={this.props.todos}
             keyExtractor = {item=>item.id}
             renderItem={this.renderItem}
+            refreshing={this.state.refreshing}
+            onRefresh={this.onRefresh}
             ref={(ref)=>{this.FlatListRef=ref}}
         />
         <TouchableOpacity
