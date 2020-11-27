@@ -47,10 +47,10 @@ class Song extends Component {
     return(
       <View style={{margin:10}}>
       <View style={styles.songBar}>
-            <View style={{backgroundColor:'#E2E2E2',height:80,width:70,borderRadius:10,margin:10,marginLeft:1,justifyContent:'center',alignItems:'center',marginLeft:10}}>
+            <View style={{backgroundColor:'#E2E2E2',height:80,width:100,borderRadius:10,margin:10,marginLeft:1,justifyContent:'center',alignItems:'center',marginLeft:10}}>
                 <Image source={{uri:'https://image.flaticon.com/icons/png/512/126/126493.png'}} style={{height:45,width:45}}></Image>
             </View>
-            <View style={{marginTop:5,marginBottom:5,height:100,width:'56%'}}>
+            <View style={{marginTop:5,marginBottom:5,height:100,width:'60%'}}>
                 <Text style={{color:'black',marginLeft:10,fontSize:16,fontFamily:'kanitSemiBold'}}>{"เพลง: "+item.name}</Text>
                 <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"ศิลปิน: "+item.singer}</Text>
                 <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"เพิ่มเติม: "+item.detail}</Text>
@@ -62,7 +62,7 @@ class Song extends Component {
               this.setState({singer:item.singer}),
               this.setState({detail:item.detail})
               }}>
-              <View style={{height:100,width:50,justifyContent:'center',alignItems:'flex-end'}}>
+              <View style={{height:100,width:150,justifyContent:'center',alignItems:"flex-end"}}>
                 <Entypo name="controller-play" size={50} color="black" />
             </View>
             </TouchableOpacity>}
