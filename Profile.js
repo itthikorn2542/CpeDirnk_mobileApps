@@ -26,6 +26,10 @@ class Profile extends Component {
       fb: this.props.profile.fb,
       ig: this.props.profile.ig,
       line: this.props.profile.line,
+      createdDate:this.props.profile.createdDate,
+      id:this.props.profile.id,
+      status:this.props.profile.status,
+      type:this.props.profile.type,
       loading: false,
       loadingOut: false
     };
@@ -53,6 +57,9 @@ class Profile extends Component {
       fb: this.state.fb,
       ig: this.state.ig,
       line: this.state.line,
+      createdDate:this.props.profile.createdDate,
+      status:this.props.profile.status,
+      type:this.props.profile.type,
     }
     this.props.save(user);
     this.setState({ loading: false })
