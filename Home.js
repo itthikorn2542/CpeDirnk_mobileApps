@@ -32,7 +32,8 @@ class Home extends Component {
       id:null,
       post:[],
       deleteID:null,
-      editID:null
+      editID:null,
+      refreshing:false,
 
     };
   }
@@ -182,7 +183,7 @@ onUpdatePost= async()=>{
       <View style={{padding:8}}>
         <Card>
             <Card.Title style={{fontFamily:'kanitSemiBold'}} title="CPEขี้เมา" subtitle={moment(item.createdDate.toDate()).fromNow()}
-            left={()=>(<Avatar.Image size={50} source={{uri:"https://bit.ly/366c9N6"}}/>)} right={()=>(
+            left={()=>(<Avatar.Image size={50} source={{uri:"https://bit.ly/2JeaoVz"}}/>)} right={()=>(
             this.props.type.type=="Admin"&&<View style={{backgroundColor:'white',height:50,width:50,justifyContent:'center',alignItems:'center',marginLeft:30}}>
               <TouchableOpacity onPress={()=>{this.setState({showModalOption:true}),this.setState({deleteID:item.id})}}>
                 <SimpleLineIcons name="options-vertical" size={18} color="black" />
@@ -193,7 +194,10 @@ onUpdatePost= async()=>{
             <Card.Content>
             <Paragraph ><Text style={{fontFamily:'kanitRegular',fontSize:18,margin:20}}>{item.caption}</Text></Paragraph>
             </Card.Content>
-            {item.type=="img"&&<Card.Cover style={{margin:20}}source={{uri:item.linkImage}} />}
+            <View style={{height:300}}>
+            <Image style={{height:300 ,resizeMode:'cover'}}source={{uri:item.linkImage}}/>
+            </View>
+            {/* {item.type=="img"&&<Card.Cover style={{margin:20}}source={{uri:item.linkImage}} />} */}
           </Card>
 
 {/* ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -293,8 +297,13 @@ onUpdatePost= async()=>{
       </View>
     );
   };
-
-  
+  refresh2=()=>{
+    this.setState({refreshing:false})
+  }
+  refresh=()=>{
+    this.setState({refreshing:true})
+    this.refresh2()
+  }
   render(props) {
     const { navigation } = this.props;
     
@@ -334,8 +343,8 @@ onUpdatePost= async()=>{
                     <View style={{flex:10}}>
                       <View style={{flex:1,flexDirection:'row',alignItems:'center'}}>
                             <Image style={{height:50,width:50,borderRadius:50,marginLeft:10}} 
-                                   source={{uri:'https://scontent.fbkk23-1.fna.fbcdn.net/v/t1.0-9/106120566_3049250375195115_1160308528193104189_o.jpg?_nc_cat=110&ccb=2&_nc_sid=09cbfe&_nc_eui2=AeFfLRFY8nsWPzaRCcMLitqYCLpinoXybFQIumKehfJsVP2YpNPfwK62kJ6zo5ChZO3UhLo3G1QN7X602rBhM-Fk&_nc_ohc=Rvmxq3WtlJgAX_ojFDr&_nc_ht=scontent.fbkk23-1.fna&oh=323ca4fb7b67911d8d2e4912768faced&oe=5FE00DA1'}}></Image>
-                            <Text style={{marginLeft:10,fontSize:20,fontFamily:'kanitRegular'}}>Itthikorn Wisetpong</Text>
+                                   source={{uri:'https://bit.ly/2JeaoVz'}}></Image>
+                            <Text style={{marginLeft:10,fontSize:20,fontFamily:'kanitRegular'}}>CPEขี้เมา</Text>
                       </View>
                       <View style={{flex:10}}>
                         <View style={{flex:1,margin:10,}}>
@@ -367,6 +376,8 @@ onUpdatePost= async()=>{
         data={this.props.post}
         keyExtractor = {item=>item.id}
         renderItem={this.renderItem}
+        refreshing={this.state.refreshing}
+        onRefresh={this.refresh}
         ref={(ref) => { this.flatListRef = ref; }}
     />
     </View>
