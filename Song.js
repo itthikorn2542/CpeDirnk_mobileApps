@@ -20,10 +20,6 @@ class Song extends Component {
         songs:[],
         songID:null,
         popup:false,
-        selectName:'',
-        selectSinger:'',
-        selectDetail:'',
-        play:[]
 
     };
   }
@@ -31,9 +27,6 @@ class Song extends Component {
   
   deleteSongSuccess=()=>{
     console.log("delete Success...")
-    this.setState({selectName:this.state.name}),
-    this.setState({selectSinger:this.state.singer}),
-    this.setState({selectDetail:this.state.detail})
   }
   deleteSongUnsuccess=(error)=>{
       console.log(error)
@@ -46,27 +39,42 @@ class Song extends Component {
   renderItem=({item})=>{
     return(
       <View style={{margin:10}}>
-      <View style={styles.songBar}>
-            <View style={{backgroundColor:'#E2E2E2',height:80,width:100,borderRadius:10,margin:10,marginLeft:1,justifyContent:'center',alignItems:'center',marginLeft:10}}>
-                <Image source={{uri:'https://image.flaticon.com/icons/png/512/126/126493.png'}} style={{height:45,width:45}}></Image>
-            </View>
-            <View style={{marginTop:5,marginBottom:5,height:100,width:'60%'}}>
-                <Text style={{color:'black',marginLeft:10,fontSize:16,fontFamily:'kanitSemiBold'}}>{"เพลง: "+item.name}</Text>
-                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"ศิลปิน: "+item.singer}</Text>
-                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"เพิ่มเติม: "+item.detail}</Text>
-            </View>
-            {this.props.type.type=="Admin"&&<TouchableOpacity onPress={()=>{
-              this.setState({popup:true}),
-              this.setState({songID:item.songID}),
-              this.setState({name:item.name}),
-              this.setState({singer:item.singer}),
-              this.setState({detail:item.detail})
-              }}>
-              <View style={{height:100,width:150,justifyContent:'center',alignItems:"flex-end"}}>
-                <Entypo name="controller-play" size={50} color="black" />
-            </View>
-            </TouchableOpacity>}
-            {this.state.songID==item.songID&&<Modal transparent={true} visible={this.state.popup} animationType='fade'>
+        {this.props.type.type=="Admin"?<TouchableOpacity onPress={()=>{
+                          this.setState({popup:true}),
+                          this.setState({songID:item.songID}),
+                          this.setState({name:item.name}),
+                          this.setState({singer:item.singer}),
+                          this.setState({detail:item.detail})
+                          }}>
+            <View style={styles.songBar}>
+                        <View style={{backgroundColor:'#E2E2E2',height:80,width:70,borderRadius:10,margin:10,marginLeft:1,justifyContent:'center',alignItems:'center',marginLeft:10}}>
+                            <Image source={{uri:'https://image.flaticon.com/icons/png/512/126/126493.png'}} style={{height:45,width:45}}></Image>
+                        </View>
+                        <View style={{marginTop:5,marginBottom:5,height:100,width:'75%'}}>
+                            <Text style={{color:'black',marginLeft:10,fontSize:16,fontFamily:'kanitSemiBold'}}>{"เพลง: "+item.name}</Text>
+                            <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"ศิลปิน: "+item.singer}</Text>
+                            <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"เพิ่มเติม: "+item.detail}</Text>
+                        </View>
+                        
+              </View>
+        </TouchableOpacity>:
+        
+        <View style={styles.songBar}>
+                        <View style={{backgroundColor:'#E2E2E2',height:80,width:70,borderRadius:10,margin:10,marginLeft:1,justifyContent:'center',alignItems:'center',marginLeft:10}}>
+                            <Image source={{uri:'https://image.flaticon.com/icons/png/512/126/126493.png'}} style={{height:45,width:45}}></Image>
+                        </View>
+                        <View style={{marginTop:5,marginBottom:5,height:100,width:'75%'}}>
+                            <Text style={{color:'black',marginLeft:10,fontSize:16,fontFamily:'kanitSemiBold'}}>{"เพลง: "+item.name}</Text>
+                            <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"ศิลปิน: "+item.singer}</Text>
+                            <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>{"เพิ่มเติม: "+item.detail}</Text>
+                        </View>
+                        
+              </View>}
+      
+
+
+
+        {this.state.songID==item.songID&&<Modal transparent={true} visible={this.state.popup} animationType='fade'>
               <View style={{flex:1,backgroundColor:'#00000060',justifyContent:'center',alignItems:'center'}}>
                   <View style={{backgroundColor:'white',height:200,width:350,borderRadius:30,justifyContent:'space-evenly'}}>
                       <View style={{height:100,width:'100%',flex:2,justifyContent:'center',alignItems:'center'}}>
@@ -77,12 +85,12 @@ class Song extends Component {
                       <View style={{height:100,width:'100%',flex:1,flexDirection:'row',justifyContent:'space-evenly',alignItems:'center'}}>
                       <TouchableOpacity style={{flex:1,height:100,justifyContent:'center',alignItems:'center',borderBottomLeftRadius:30}} onPress={()=>{this.setState({popup:false})}}>
                         <View >
-                        <Text style={{fontSize:15,fontFamily:'kanitSemiBold'}}>ยกเลิก</Text>
+                        <Text style={{fontSize:20,fontFamily:'kanitSemiBold'}}>ยกเลิก</Text>
                       </View>
                       </TouchableOpacity>
                       <TouchableOpacity style={{flex:1,height:100,justifyContent:'center',alignItems:'center',borderBottomRightRadius:30}} onPress={this.onSelected}>
                         <View >
-                        <Text style={{fontSize:15,fontFamily:'kanitSemiBold'}}>เล่น</Text>
+                        <Text style={{fontSize:20,fontFamily:'kanitSemiBold',color:'#8B63FB'}}>เล่น</Text>
                       </View>
                       </TouchableOpacity>
                       
@@ -93,7 +101,6 @@ class Song extends Component {
               </View>
 
             </Modal>}
-        </View>
       </View>
     );
   }
@@ -135,9 +142,9 @@ class Song extends Component {
   }
   addSuccess=(docRef)=>{
     this.setState({showModal:false});
-    this.setState({name:null})
-    this.setState({singer:null})
-    this.setState({detail:null})
+    this.setState({name:'-'})
+    this.setState({singer:'-'})
+    this.setState({detail:'-'})
   
   }
   addUnSuccess=(error)=>{
@@ -148,10 +155,15 @@ class Song extends Component {
       let song = {
         name:this.state.name,
         singer:this.state.singer,
-        status:"0",
         detail:this.state.detail,
       }
-      await firestore.addSong(song,this.addSuccess,this.addUnSuccess);
+      if(this.state.name!="-"&&this.state.singer!="-"){
+        await firestore.addSong(song,this.addSuccess,this.addUnSuccess);
+      }
+      else{
+        alert("กรุณาบอกชื่อเพลงและชื่อศิลปิน")
+      }
+      
       
   }
 
