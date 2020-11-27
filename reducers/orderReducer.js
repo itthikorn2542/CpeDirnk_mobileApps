@@ -1,4 +1,4 @@
-import {SAVE_ORDER,ADD_ORDER} from '../actions/types'
+import {SAVE_ORDER,ADD_ORDER,DELETE_ORDER} from '../actions/types'
 
 const intialState={
   orderList:[]
@@ -19,6 +19,11 @@ const orderReducer=(state=intialState,action)=>{
                 action.data
             )
         }
+        case DELETE_ORDER:
+            return{
+                ...state,
+                orderList:state.orderList.filter((item)=>item.id!==action.data.id)
+              }
         default:
         return state;
   }

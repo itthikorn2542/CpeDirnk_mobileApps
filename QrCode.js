@@ -7,7 +7,8 @@ import {
 } from 'react-native';
 import Constants from 'expo-constants';
 import * as Permissions from 'expo-permissions';
-
+import firestore from './firebase/Firestore'
+import {connect} from 'react-redux';
 import {
   BarCodeScanner
 } from 'expo-barcode-scanner';
@@ -50,11 +51,34 @@ class QrCode extends React.Component {
     );
   }
 
+success=()=>{
+  console.log("update success...")
+}
+reject=(error)=>{
+  console.log(error)
+}
+onUpdate=async()=>{
+    let user = {
+        status:"1"
+      }
+      await firestore.updateAccountStatusByID(user,this.props.type.id,this.success,this.reject)
+  }
   handleBarCodeScanned = ({ type, data }) => {
     this.setState({
       scanned: true
     });
     alert(`Bar code with type ${type} and data ${data} has been scanned! zico`);
+    if(data == "เข้าร้าน"){
+      this.onUpdate()
+    }
+
   };
 }
-export default QrCode
+
+const mapStateToProps=(state)=>{
+  return{
+    type:state.profileReducer.profile
+  }
+    
+}
+export default connect(mapStateToProps)(QrCode);

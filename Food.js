@@ -13,16 +13,18 @@ import firestore from './firebase/Firestore'
 import { MaterialIcons } from '@expo/vector-icons';
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import { addOrder, saveOrder } from './actions/actionOrder';
+import { addOrder, deleteOrder, saveOrder } from './actions/actionOrder';
 
 class Food extends Component {
   constructor(props){
     super(props);
     this.state = {
       selectedID:1,
+      foodID:null,
       searchText:null,
       showModalOrder:false,
       showModal:false,
+      showModalBox:false,
       id:1,
       count:1,
       catagory:"",
@@ -34,7 +36,9 @@ class Food extends Component {
   }
 
 
-
+  // componentDidMount= async()=>{
+  //   await firestore.getAllFood(this.success,this.reject)
+  //  }
   renderSeparator=()=>{
     return(
       <View style={{height:1,backgroundColor:'black'}}></View>
@@ -154,9 +158,27 @@ class Food extends Component {
       </View>
     );
   }
+  deleteSuccess=()=>{
+    let food ={
+        id:this.state.foodID
+    }
+    this.props.del(food)
+    this.setState({showModalBox:false})
+  }
+  deleteUnsuccess=(error)=>{
+    console.log(error)
+  }
+onDelete=async()=>{
+  await firestore.deleteFoodByID(this.state.foodID,this.deleteSuccess,this.deleteUnsuccess);
+}
 renderOrder=({item})=>{
   return(
     <View style={{padding:8}}>
+      <TouchableOpacity onPress={
+        ()=>{
+          this.setState({foodID:item.id}),
+          this.setState({showModalBox:true})
+        }}>
         <View style={styles.orderBar}>
           <View style={{flex:1,flexDirection:'row'}}>
               <View style={{backgroundColor:'black',height:40,width:40,borderTopLeftRadius:5,borderBottomRightRadius:10}}>
@@ -171,7 +193,8 @@ renderOrder=({item})=>{
                 <Text style={{fontSize:15,fontFamily:'kanitSemiBold'}}>ราคา: {item.price}</Text>
           </View>
         </View>
-              
+        </TouchableOpacity>
+        
       </View>
   );
   
@@ -190,17 +213,13 @@ success=(querySnapshot)=>{
 reject=(error)=>{
   console.log(error)
 }
-componentDidMount= async()=>{
- await firestore.getAllFood(this.success,this.reject)
-}
-
 orderSuccess=(docRef)=>{
   this.setState({showModal:false});
   let foods=[];
     let food={
         id:docRef.id,
         name:this.state.name,
-        price:this.state.price,
+        price:this.state.price*this.state.count,
         table:this.props.type.caption,
         amount:this.state.count
     }
@@ -245,7 +264,10 @@ onOrder= async()=>{
           {this.props.type.type=="Admin"&&
           <TouchableOpacity
           activeOpacity={0.7}
-          onPress={()=>{this.setState({showModalOrder:true})}}
+          onPress={async()=>{
+            this.setState({showModalOrder:true})
+            await firestore.getAllFood(this.success,this.reject)
+          }}
           style={styles.touchableOpacityStyle}>
           <View style={styles.floatingButtonStyle}>
           <FontAwesome5 name="clipboard-list" size={24} color="white" />
@@ -282,6 +304,31 @@ onOrder= async()=>{
 
         </Modal>
     
+        <Modal transparent={true} visible={this.state.showModalBox}>
+            <View style={{flex:1,backgroundColor:'#00000060',justifyContent:'center',alignItems:'center'}}>
+              <View style={{height:200,width:300,backgroundColor:'white',borderRadius:20}}>
+                <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
+                        <Text style={{fontSize:20,fontFamily:'kanitSemiBold'}}>พร้อมเสิร์ฟลูกค้า?</Text>
+                </View>
+                <View style={{backgroundColor:'black',height:1,width:'100%'}}></View>
+                <View style={{flex:1,flexDirection:'row',alignItems:'center'}}>
+                  <TouchableOpacity style={{flex:1,alignItems:'center',justifyContent:'center'}} onPress={()=>{this.setState({showModalBox:false})}}>
+                    <View style={{alignItems:'center'}}>
+                      <Text style={{fontSize:20,fontFamily:'kanitSemiBold'}}>ยกเลิก</Text>
+                    </View>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={{flex:1,alignItems:'center',justifyContent:'center'}} onPress={this.onDelete}>
+                    <View style={{alignItems:'center'}}>
+                      <Text style={{fontSize:20,fontFamily:'kanitSemiBold',color:'green'}}>ใช่</Text>
+                    </View>
+                  </TouchableOpacity>
+                  
+                  
+                </View>
+
+              </View>
+            </View>
+        </Modal>
     </View>
     );
   }
@@ -407,7 +454,8 @@ const styles = StyleSheet.create({
   const mapDispatchToProps=(dispatch)=>{
     return{
       save:(data)=>dispatch(saveOrder(data)),
-      add:(data)=>dispatch(addOrder(data))
+      add:(data)=>dispatch(addOrder(data)),
+      del:(data)=>dispatch(deleteOrder(data))
     }
     
   }

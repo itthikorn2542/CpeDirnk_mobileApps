@@ -51,10 +51,24 @@ class Firestore {
     .catch(function(error){
       reject(error)
     });
-  }
+  };
+  updateAccountStatusByID=(user,id,success,reject)=>{
+    console.log("updateAccountByID")
+    firebase.firestore().collection('User')
+    .doc(id)
+    .update({
+      status:user.status
+    })
+    .then(function(){
+      success(null);
+    })
+    .catch(function(error){
+      reject(error)
+    });
+  };
   getAccountByStatus=(success,reject)=>{
     firebase.firestore().collection('User')
-    .where('status','==','0')
+    .where('status','==','1')
     .get()
     .then(function(querySnapshot){
         success(querySnapshot);
@@ -274,6 +288,7 @@ getAllFood= (success, reject) => {
   firebase
     .firestore()
     .collection('OrderFood')
+    .orderBy("createdDate","desc")
     .get()
     .then(function (querySnapshot) {
       success(querySnapshot);
@@ -285,6 +300,7 @@ getAllFood= (success, reject) => {
 //////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
 addOrderFood=(food,success,reject)=>{
+  food.createdDate = firebase.firestore.FieldValue.serverTimestamp();
   firebase.firestore().collection('OrderFood').add(food)
   .then(function(docRef){
     success(docRef);
@@ -297,6 +313,17 @@ addOrderFood=(food,success,reject)=>{
 };
 //////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
+deleteFoodByID=(id,success,reject)=>{
+  firebase.firestore().collection('OrderFood')
+  .doc(id)
+  .delete()
+  .then(function(){
+    success(null)
+  })
+  .catch(function(error){
+    reject(error)
+  });
+};
 
 }
 const firestore = new Firestore();
