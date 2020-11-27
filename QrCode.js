@@ -53,6 +53,7 @@ class QrCode extends React.Component {
 
 success=()=>{
   console.log("update success...")
+  
 }
 reject=(error)=>{
   console.log(error)
@@ -67,9 +68,10 @@ onUpdate=async()=>{
     this.setState({
       scanned: true
     });
-    alert(`Bar code with type ${type} and data ${data} has been scanned! zico`);
+    alert("ยินดีต้อนรับเข้าสู้ร้าน CPEขี้เมา");
     if(data == "เข้าร้าน"){
       this.onUpdate()
+      this.props.navigation.navigate('Home')
     }
 
   };
