@@ -6,6 +6,7 @@ export const EDIT_PROFILE = "EDIT_PROFILE";
 export const ADD_SONG = "ADD_SONG";
 export const SAVE_SONG = "SAVE_SONG";
 export const DELETE_SONG = "DELETE_SONG";
+export const EDIT_SONG = "EDIT_SONG";
 
 
 export const SAVE_POST = "SAVE_POST";

@@ -331,15 +331,29 @@ deleteFoodByID=(id,success,reject)=>{
 /////////////////////////////////////////////////////////////////////////////////////////////
 listeningSong(success,reject){
   firebase.firestore().collection('Song')
-  .orderBy("createdDate","desc")
+  .orderBy("createdDate",'asc')
   .onSnapshot(function(snapshot){
     var song=[];
+    var type=null
     snapshot.docChanges().forEach(function(change){
       if(change.type==="added"){
-        song.push(change.doc.data())
+        type=change.type
+        let s=change.doc.data()
+        s.songID=change.doc.id
+        song.push(s)
+        console.log("addddddddddddddddde")
+        console.log(change.doc.data())
+      }
+      if(change.type==="removed"){
+        type=change.type
+        console.log("remove bbbbbb")
+        let Re=change.doc.data()
+        Re.songID=change.doc.id
+        song=change
+        console.log(song)
       }
     })
-    success(song)
+    success(song,type)
   },function(error){
     reject(error);
   })

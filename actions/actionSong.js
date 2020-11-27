@@ -1,4 +1,4 @@
-import {ADD_SONG,SAVE_SONG,DELETE_SONG,UPDATE_SONG} from './types';
+import {ADD_SONG,SAVE_SONG,DELETE_SONG,EDIT_SONG} from './types';
 
 export const addSong=(data)=>({
     type:ADD_SONG,
@@ -8,11 +8,12 @@ export const saveSong=(data)=>({
     type:SAVE_SONG,
     data:data
 });
-export const deleteSong=(data)=>({
+export const deletedSong=(id)=>({
     type:DELETE_SONG,
-    data:data
+    id:id
 });
-export const updateSong=(data)=>({
-    type:UPDATE_SONG,
+
+export const editSong=(data)=>({
+    type:EDIT_SONG,
     data:data
 });

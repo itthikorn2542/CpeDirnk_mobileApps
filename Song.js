@@ -8,8 +8,7 @@ import { Entypo } from '@expo/vector-icons';
 import * as song from './song.json'
 import {connect} from 'react-redux';
 import firestore from './firebase/Firestore'
-
-import {addSong,deleteSong,saveSong} from './actions/actionSong'
+import {addSong,deletedSong,saveSong} from './actions/actionSong'
 class Song extends Component {
   constructor(props){
     super(props);
@@ -24,16 +23,14 @@ class Song extends Component {
         selectName:'',
         selectSinger:'',
         selectDetail:'',
+        play:[]
 
     };
   }
   
   
   deleteSongSuccess=()=>{
-    let song = {
-      id:this.state.songID
-    }
-    this.props.del(song)
+    console.log("delete Success...")
     this.setState({selectName:this.state.name}),
     this.setState({selectSinger:this.state.singer}),
     this.setState({selectDetail:this.state.detail})
@@ -47,7 +44,6 @@ class Song extends Component {
     
   }
   renderItem=({item})=>{
-    console.log(item)
     return(
       <View style={{margin:10}}>
       <View style={styles.songBar}>
@@ -61,7 +57,7 @@ class Song extends Component {
             </View>
             {this.props.type.type=="Admin"&&<TouchableOpacity onPress={()=>{
               this.setState({popup:true}),
-              this.setState({songID:item.id}),
+              this.setState({songID:item.songID}),
               this.setState({name:item.name}),
               this.setState({singer:item.singer}),
               this.setState({detail:item.detail})
@@ -70,7 +66,7 @@ class Song extends Component {
                 <Entypo name="controller-play" size={50} color="black" />
             </View>
             </TouchableOpacity>}
-            {this.state.songID==item.id&&<Modal transparent={true} visible={this.state.popup} animationType='fade'>
+            {this.state.songID==item.songID&&<Modal transparent={true} visible={this.state.popup} animationType='fade'>
               <View style={{flex:1,backgroundColor:'#00000060',justifyContent:'center',alignItems:'center'}}>
                   <View style={{backgroundColor:'white',height:200,width:350,borderRadius:30,justifyContent:'space-evenly'}}>
                       <View style={{height:100,width:'100%',flex:2,justifyContent:'center',alignItems:'center'}}>
@@ -110,48 +106,38 @@ class Song extends Component {
   }
   //////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////
-  listeningSuccess=(songs)=>{
+  listeningSuccess=(songs,type)=>{
     console.log("listeningSuccess message")
-    var song=[]
-
-    songs.forEach(function(data){
+    let song=[]
+    console.log(type)
+    if(type==="added"){
+      songs.forEach(function(data){
           let s=data
           // mes.createdDate=new Date(data.createdDate);
-          songs.push(s)
+          song.push(s)
       })
-    this.props.add(this.state.songs)
+      this.props.add(song)
+    }
+    if(type==="removed"){
+      console.log("songgggggg remove")
+      console.log(songs.doc.id)
+      this.props.del(songs.doc.id)
+    }
+    console.log("storeee")
+    console.log(this.props.todos)
+      
+   
+
 
   }
   unsuccess=(error)=>{
       console.log(error)
   }
-  success = (querySnapshot) => {
-    //console.log(querySnapshot)
-    var songs = []
-    querySnapshot.forEach(function(doc){ 
-      let song = doc.data()
-      song.id  = doc.id
-      songs = songs.concat(song)
-    })
-    this.props.save(songs);
-
-  }
   addSuccess=(docRef)=>{
     this.setState({showModal:false});
-    let songs=[];
-      let song={
-          id:docRef.id,
-          name:this.state.name,
-          singer:this.state.singer,
-          detail:this.state.detail,
-      }
-      songs=songs.concat(song)
-      this.props.add(songs);
-      console.log(songs);
-      this.setState({name:null})
-      this.setState({singer:null})
-      this.setState({detail:null})
-      this.setState({songID:docRef.id})
+    this.setState({name:null})
+    this.setState({singer:null})
+    this.setState({detail:null})
   
   }
   addUnSuccess=(error)=>{
@@ -162,6 +148,7 @@ class Song extends Component {
       let song = {
         name:this.state.name,
         singer:this.state.singer,
+        status:"0",
         detail:this.state.detail,
       }
       await firestore.addSong(song,this.addSuccess,this.addUnSuccess);
@@ -171,23 +158,9 @@ class Song extends Component {
 
   render(props) {
     const { navigation } = this.props;
-    console.log(this.state.song2)
     return (
       <View style={{flex:1}}>
-        <View style={{backgroundColor:'black',width:200,height:30,borderRadius:5,marginLeft:20,alignItems:'center',justifyContent:'center',marginBottom:15}}>
-          <Text style={{fontFamily:'kanitSemiBold',color:'white'}}>เพลงที่กำลังเล่น</Text>
-        </View>
-        <View style={{backgroundColor:'black',height:100,borderWidth:1,borderRadius:10,marginLeft:20,marginRight:20,flexDirection:'row',marginBottom:15}}>
-            <View style={{backgroundColor:'#E2E2E2',height:80,width:80,borderRadius:10,margin:10,justifyContent:'center',alignItems:'center'}}>
-                <Image source={{uri:'https://image.flaticon.com/icons/png/512/49/49831.png'}} style={{height:70,width:70}}></Image>
-            </View>
-            <View style={{width:1,height:75,backgroundColor:'white',marginTop:10}}></View>
-            <View style={{marginTop:5,marginBottom:5}}>
-    <Text style={{color:'white',marginLeft:10,fontSize:20,fontFamily:'kanitSemiBold'}}>เพลง: {this.state.selectName}</Text>
-                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>ศิลปิน: {this.state.selectSinger}</Text>
-                <Text style={{color:'#8B8B8B',marginLeft:10,marginTop:5,fontSize:15,fontFamily:'kanitSemiBold'}}>เพิ่มเติม: {this.state.selectDetail}</Text>
-            </View>
-        </View>
+        
         <View style={{backgroundColor:'black',width:200,height:30,borderRadius:5,marginLeft:20,alignItems:'center',justifyContent:'center'}}>
           <Text style={{fontFamily:'kanitSemiBold',color:'white'}}>คิวเพลงทั้งหมด {this.props.todos.length} เพลง</Text>
         </View>
@@ -334,7 +307,7 @@ const styles = StyleSheet.create({
     return{
       add:(name,singer,detail)=>dispatch(addSong(name,singer,detail)),
       save:(name,singer,detail)=>dispatch(saveSong(name,singer,detail)),
-      del:(data)=>dispatch(deleteSong(data)),
+      del:(data)=>dispatch(deletedSong(data)),
     }
   }
   
