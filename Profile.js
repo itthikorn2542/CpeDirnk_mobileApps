@@ -138,7 +138,7 @@ class Profile extends Component {
       return (
         <View style={{ flexDirection: 'column', flex: 1, justifyContent: 'space-evenly', alignItems: 'center' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <MaterialIcons name="description" size={28} color="black" />
+          <FontAwesome5 name="chair" size={28} color="black" />
             <Text style={styles.txtDescription}>  {this.props.profile.caption}</Text>
           </View>
 
@@ -201,10 +201,10 @@ class Profile extends Component {
 
               <View style={styles.modalMid}>
                 <View style={styles.modalMidLeft}>
-                  <MaterialIcons name="description" size={28} color="black" />
+                <FontAwesome5 name="chair" size={28} color="black" />
                 </View>
                 <View style={styles.modalMidRight}>
-                  <TextInput style={styles.textInput} value={this.state.caption} onChangeText={(text) => this.setState({ caption: text })}></TextInput>
+                  <TextInput style={styles.textInput} value={this.state.caption} keyboardType='decimal-pad' onChangeText={(text) => this.setState({ caption: text })}></TextInput>
                 </View>
               </View>
 
