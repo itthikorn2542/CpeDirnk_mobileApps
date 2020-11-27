@@ -171,7 +171,7 @@ class Song extends Component {
             renderItem={this.renderItem}
             ref={(ref)=>{this.FlatListRef=ref}}
         />
-        {this.props.type.type=="Admin"&&<TouchableOpacity
+        {this.props.type.type!=="Admin"&&<TouchableOpacity
           activeOpacity={0.7}
           onPress={()=>{this.setState({showModal:true})}}
           style={styles.touchableOpacityStyle}>

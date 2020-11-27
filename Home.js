@@ -48,9 +48,10 @@ class Home extends Component {
       this.setState({img:result.uri});
     }
   }
-  componentDidMount=()=>{
+  componentDidMount=async()=>{
     firestore.getAllPost(this.success,this.addUnSuccess);
   }
+  
   success = (querySnapshot) => {
     //console.log(querySnapshot)
     var posts = []

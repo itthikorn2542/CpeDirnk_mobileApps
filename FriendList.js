@@ -276,7 +276,7 @@ class FriendList extends Component {
           keyExtractor={item => item.id}
           ItemSeparatorComponent={this.renderSeparator}
         />
-        {this.props.profile.type!=="Admin"&&<TouchableOpacity
+        {this.props.profile.type=="Admin"&&<TouchableOpacity
           //activeOpacity={0.7}
           onPress={this.checkDeleteUser}
           style={styles.touchableOpacityStyle}>

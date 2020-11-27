@@ -198,7 +198,35 @@ renderOrder=({item})=>{
   
 }
 componentDidMount=async()=>{
+  await firestore.listeningFood(this.listeningSuccess,this.unsuccess)
   await firestore.getAllFood(this.success,this.reject)
+}
+listeningSuccess=(foods,type)=>{
+  console.log("listeningSuccess message")
+  let food=[]
+  console.log(type)
+  if(type==="added"){
+    foods.forEach(function(data){
+        let s=data
+        // mes.createdDate=new Date(data.createdDate);
+        food.push(s)
+    })
+    this.props.add(food)
+  }
+  if(type==="removed"){
+    console.log("songgggggg remove")
+    console.log(foods.doc.id)
+    this.props.del(foods.doc.id)
+  }
+  console.log("storeee")
+  console.log(this.props.todos)
+    
+ 
+
+
+}
+unsuccess=(error)=>{
+    console.log(error)
 }
 success=(querySnapshot)=>{
   var orders = []
@@ -216,18 +244,18 @@ reject=(error)=>{
 }
 orderSuccess=(docRef)=>{
   this.setState({showModal:false});
-  let foods=[];
-    let food={
-        id:docRef.id,
-        name:this.state.name,
-        price:this.state.price*this.state.count,
-        table:this.props.type.caption,
-        amount:this.state.count
-    }
-    foods=foods.concat(food)
-    this.props.add(foods);
-    console.log("++++++++++++++++++++++++++++++++++++++")
-    console.log(foods);
+  // let foods=[];
+  //   let food={
+  //       id:docRef.id,
+  //       name:this.state.name,
+  //       price:this.state.price*this.state.count,
+  //       table:this.props.type.caption,
+  //       amount:this.state.count
+  //   }
+  //   foods=foods.concat(food)
+  //   this.props.add(foods);
+    //console.log("++++++++++++++++++++++++++++++++++++++")
+    //console.log(foods);
     this.setState({name:null})
     this.setState({price:null})
     this.setState({count:1})

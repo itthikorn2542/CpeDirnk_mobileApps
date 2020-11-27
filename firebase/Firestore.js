@@ -282,7 +282,7 @@ class Firestore {
   };
   //////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
-  
+
   //////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
   
@@ -331,6 +331,35 @@ addOrderFood=(food,success,reject)=>{
   
 };
 //////////////////////////////////////////////////////////////////////////////////////////////
+listeningFood(success,reject){
+  firebase.firestore().collection('OrderFood')
+  .orderBy("createdDate",'asc')
+  .onSnapshot(function(snapshot){
+    var food=[];
+    var type=null
+    snapshot.docChanges().forEach(function(change){
+      if(change.type==="added"){
+        type=change.type
+        let s=change.doc.data()
+        s.id=change.doc.id
+        food.push(s)
+        console.log("addddddddddddddddde")
+        console.log(change.doc.data())
+      }
+      if(change.type==="removed"){
+        type=change.type
+        console.log("remove bbbbbb")
+        let Re=change.doc.data()
+        Re.id=change.doc.id
+        food=change
+        console.log(food)
+      }
+    })
+    success(food,type)
+  },function(error){
+    reject(error);
+  })
+}
 /////////////////////////////////////////////////////////////////////////////////////////////
 deleteFoodByID=(id,success,reject)=>{
   firebase.firestore().collection('OrderFood')
