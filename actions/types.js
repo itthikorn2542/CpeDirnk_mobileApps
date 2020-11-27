@@ -15,6 +15,6 @@ export const EDIT_POST = "EDIT_POST";
 
 export const SAVE_ORDER = "SAVE_ORDER";
 export const ADD_ORDER = "ADD_ORDER";
-export const DELETE_ORDER = "ADD_ORDER";
+export const DELETE_ORDER = "DELETE_ORDER";
 
 

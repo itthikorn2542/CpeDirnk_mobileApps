@@ -18,7 +18,7 @@ class Song extends Component {
         name:"-",
         singer:"-",
         detail:"-",
-        song:[],
+        songs:[],
         songID:null,
         popup:false,
         selectName:'',
@@ -27,6 +27,8 @@ class Song extends Component {
 
     };
   }
+  
+  
   deleteSongSuccess=()=>{
     let song = {
       id:this.state.songID
@@ -45,6 +47,7 @@ class Song extends Component {
     
   }
   renderItem=({item})=>{
+    console.log(item)
     return(
       <View style={{margin:10}}>
       <View style={styles.songBar}>
@@ -102,10 +105,26 @@ class Song extends Component {
   
   //////////////////////////////////////////////////////////////////////////////////
   componentDidMount=async()=>{
-    await firestore.getAllSong(this.success,this.addUnSuccess);
+
+    await firestore.listeningSong(this.listeningSuccess,this.unsuccess)
   }
   //////////////////////////////////////////////////////////////////////////////////
   //////////////////////////////////////////////////////////////////////////////////
+  listeningSuccess=(songs)=>{
+    console.log("listeningSuccess message")
+    var song=[]
+
+    songs.forEach(function(data){
+          let s=data
+          // mes.createdDate=new Date(data.createdDate);
+          songs.push(s)
+      })
+    this.props.add(this.state.songs)
+
+  }
+  unsuccess=(error)=>{
+      console.log(error)
+  }
   success = (querySnapshot) => {
     //console.log(querySnapshot)
     var songs = []
@@ -115,7 +134,7 @@ class Song extends Component {
       songs = songs.concat(song)
     })
     this.props.save(songs);
-    this.setState({song:songs})
+
   }
   addSuccess=(docRef)=>{
     this.setState({showModal:false});
@@ -132,6 +151,7 @@ class Song extends Component {
       this.setState({name:null})
       this.setState({singer:null})
       this.setState({detail:null})
+      this.setState({songID:docRef.id})
   
   }
   addUnSuccess=(error)=>{
@@ -178,7 +198,7 @@ class Song extends Component {
             renderItem={this.renderItem}
             ref={(ref)=>{this.FlatListRef=ref}}
         />
-        {this.props.type.type!=="Admin"&&<TouchableOpacity
+        {this.props.type.type=="Admin"&&<TouchableOpacity
           activeOpacity={0.7}
           onPress={()=>{this.setState({showModal:true})}}
           style={styles.touchableOpacityStyle}>

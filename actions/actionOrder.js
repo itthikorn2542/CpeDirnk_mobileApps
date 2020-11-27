@@ -8,7 +8,12 @@ export const addOrder=(data)=>({
     type:ADD_ORDER,
     data:data
 });
-export const deleteOrder=(data)=>({
-    type:DELETE_ORDER,
-    data:data
-});
+export const deleteOrder=(data)=>{
+    console.log('delete mmmmm')
+    return(
+        {type:DELETE_ORDER,
+    data:data}
+    )
+
+}
+

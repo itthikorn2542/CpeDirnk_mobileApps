@@ -24,10 +24,8 @@ class Food extends Component {
       searchText:null,
       showModalOrder:false,
       showModal:false,
-      showModalBox:false,
       id:1,
       count:1,
-      catagory:"",
       selectedMenu:1,
       order:[],
       name:null,
@@ -168,16 +166,16 @@ class Food extends Component {
   deleteUnsuccess=(error)=>{
     console.log(error)
   }
-onDelete=async()=>{
-  await firestore.deleteFoodByID(this.state.foodID,this.deleteSuccess,this.deleteUnsuccess);
+onDelete=async(id)=>{
+  this.setState({foodID:id})
+  await firestore.deleteFoodByID(id,this.deleteSuccess,this.deleteUnsuccess);
 }
 renderOrder=({item})=>{
   return(
     <View style={{padding:8}}>
       <TouchableOpacity onPress={
         ()=>{
-          this.setState({foodID:item.id}),
-          this.setState({showModalBox:true})
+          this.onDelete(item.id)
         }}>
         <View style={styles.orderBar}>
           <View style={{flex:1,flexDirection:'row'}}>
@@ -198,6 +196,9 @@ renderOrder=({item})=>{
       </View>
   );
   
+}
+componentDidMount=async()=>{
+  await firestore.getAllFood(this.success,this.reject)
 }
 success=(querySnapshot)=>{
   var orders = []
@@ -264,9 +265,9 @@ onOrder= async()=>{
           {this.props.type.type=="Admin"&&
           <TouchableOpacity
           activeOpacity={0.7}
-          onPress={async()=>{
+          onPress={()=>{
             this.setState({showModalOrder:true})
-            await firestore.getAllFood(this.success,this.reject)
+            
           }}
           style={styles.touchableOpacityStyle}>
           <View style={styles.floatingButtonStyle}>
@@ -302,32 +303,6 @@ onOrder= async()=>{
 
           </View>
 
-        </Modal>
-    
-        <Modal transparent={true} visible={this.state.showModalBox}>
-            <View style={{flex:1,backgroundColor:'#00000060',justifyContent:'center',alignItems:'center'}}>
-              <View style={{height:200,width:300,backgroundColor:'white',borderRadius:20}}>
-                <View style={{flex:1,justifyContent:'center',alignItems:'center'}}>
-                        <Text style={{fontSize:20,fontFamily:'kanitSemiBold'}}>พร้อมเสิร์ฟลูกค้า?</Text>
-                </View>
-                <View style={{backgroundColor:'black',height:1,width:'100%'}}></View>
-                <View style={{flex:1,flexDirection:'row',alignItems:'center'}}>
-                  <TouchableOpacity style={{flex:1,alignItems:'center',justifyContent:'center'}} onPress={()=>{this.setState({showModalBox:false})}}>
-                    <View style={{alignItems:'center'}}>
-                      <Text style={{fontSize:20,fontFamily:'kanitSemiBold'}}>ยกเลิก</Text>
-                    </View>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={{flex:1,alignItems:'center',justifyContent:'center'}} onPress={this.onDelete}>
-                    <View style={{alignItems:'center'}}>
-                      <Text style={{fontSize:20,fontFamily:'kanitSemiBold',color:'green'}}>ใช่</Text>
-                    </View>
-                  </TouchableOpacity>
-                  
-                  
-                </View>
-
-              </View>
-            </View>
         </Modal>
     </View>
     );
