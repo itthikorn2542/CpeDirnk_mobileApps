@@ -25,9 +25,9 @@ class PageChat extends Component {
   async componentDidMount(){
     await firestore.listeningMessage(this.room,this.listeningSuccess,this.unsuccess)
   }
-  componentWillUnmount(){
-    console.log("componentWillUnmount")
-  }
+  // componentWillUnmount(){
+  //   console.log("componentWillUnmount")
+  // }
   listeningSuccess=(messages)=>{
     console.log("listeningSuccess message")
     console.log(messages)
