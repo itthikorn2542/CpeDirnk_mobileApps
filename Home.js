@@ -174,6 +174,8 @@ onUpdatePost= async()=>{
       caption:this.state.caption,
       id:this.state.editID,
     }
+    console.log("update")
+    console.log(post)
     await firestore.updatePostByID(post,this.updateSuccess,this.updateUnSuccess)
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
