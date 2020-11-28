@@ -276,6 +276,8 @@ onRefreshTrue=async()=>{
                   data={meno.food}
                   keyExtractor={item=>item.id}
                   renderItem={this.renderItem}
+                  refreshing={this.state.refreshing}
+                  onRefresh={this.onRefreshTrue}
                   ref={(ref)=>{this.FlatListRef=ref}}
               />
             </View>
