@@ -219,7 +219,6 @@ class Firestore {
     firebase
       .firestore()
       .collection('Song')
-      .orderBy("createdDate",'asc')
       .get()
       .then(function (querySnapshot) {
         success(querySnapshot);
